@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link rel="stylesheet" href="css/common.css">
+
+    <title>Projects | Dream CV</title>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         HEADER
+         ========================= -->
+
+    <header class="top-header">
+
+        <div class="logo">
+            Dream <span>CV</span>
+        </div>
+
+        <button
+            type="button"
+            class="logout-btn"
+            id="logoutBtn"
+        >
+            Logout
+        </button>
+
+    </header>
+
+
+
+    <!-- =========================
+         MAIN CONTENT
+         ========================= -->
+
+    <main class="page-container">
+
+
+        <h1 class="page-title">
+            Project Information
+        </h1>
+
+
+        <p class="page-description">
+            Tell us about your projects, the technologies
+            you used, and your GitHub links.
+        </p>
+
+
+
+        <!-- =========================
+             PROJECT CARD
+             ========================= -->
+
+        <section class="content-card">
+
+
+            <h2>
+                Step 4 of 5
+            </h2>
+
+
+            <p>
+                Add the projects you have worked on.
+                You can add multiple projects using the
+                button below.
+            </p>
+
+
+
+            <!-- =========================
+                 PROJECT FORM
+                 ========================= -->
+
+            <form id="projectsForm">
+
+
+                <!-- PROJECTS CONTAINER -->
+
+                <div id="projectsContainer">
+
+
+                    <!-- =========================
+                         FIRST PROJECT
+                         ========================= -->
+
+                    <div class="project-card">
+
+
+                        <h3>
+                            Project 1
+                        </h3>
+
+
+                        <!-- Project Title -->
+
+                        <div class="form-group">
+
+                            <label for="title-1">
+                                Project Title
+                            </label>
+
+                            <input
+                                type="text"
+                                id="title-1"
+                                class="project-title"
+                                placeholder="Name of the project"
+                                required
+                            >
+
+                        </div>
+
+
+
+                        <!-- Project Description -->
+
+                        <div class="form-group">
+
+                            <label for="description-1">
+                                Project Description
+                            </label>
+
+                            <textarea
+                                id="description-1"
+                                class="project-description"
+                                rows="5"
+                                placeholder="Tell us about the project"
+                                required
+                            ></textarea>
+
+                        </div>
+
+
+
+                        <!-- Technologies -->
+
+                        <div class="form-group">
+
+                            <label for="stack-1">
+                                Technologies Used
+                            </label>
+
+                            <input
+                                type="text"
+                                id="stack-1"
+                                class="project-stack"
+                                placeholder="Example: HTML, CSS, JavaScript"
+                                required
+                            >
+
+                        </div>
+
+
+
+                        <!-- GitHub -->
+
+                        <div class="form-group">
+
+                            <label for="github-1">
+                                GitHub URL
+                            </label>
+
+                            <input
+                                type="url"
+                                id="github-1"
+                                class="project-github"
+                                placeholder="https://github.com/username/project"
+                            >
+
+                        </div>
+
+
+                    </div>
+
+
+                </div>
+
+
+
+                <!-- =========================
+                     ADD PROJECT
+                     ========================= -->
+
+                <button
+                    type="button"
+                    id="addProjectBtn"
+                    class="primary-btn"
+                >
+                    + Add Project
+                </button>
+
+
+            </form>
+
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- =========================
+         PREVIOUS / NEXT
+         ========================= -->
+
+    <nav class="page-navigation">
+
+
+        <a href="skills.html">
+
+            <button
+                type="button"
+                class="primary-btn"
+            >
+                ← Previous
+            </button>
+
+        </a>
+
+
+
+        <button
+            type="button"
+            class="primary-btn"
+            id="nextBtn"
+        >
+            Next →
+        </button>
+
+
+    </nav>
+
+
+
+    <!-- =========================
+         FOOTER
+         ========================= -->
+
+    <footer class="main-footer">
+
+        <p>
+            © 2026 Dream CV Maker. All Rights Reserved.
+        </p>
+
+    </footer>
+
+
+
+    <!-- =========================
+         JAVASCRIPT
+         ========================= -->
+
+    <script src="js/projects.js"></script>
+
+
+</body>
+
+</html>

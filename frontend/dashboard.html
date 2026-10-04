@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <link
+        rel="stylesheet"
+        href="css/dashboard.css"
+    >
+
+    <title>Dashboard | Dream CV Maker</title>
+
+</head>
+
+
+<body>
+
+
+    <!-- =========================
+         SIDEBAR
+         ========================= -->
+
+    <aside class="sidebar">
+
+        <div class="sidebar-logo">
+
+            Dream <span>CV</span>
+
+        </div>
+
+
+        <nav class="sidebar-nav">
+
+            <a href="intro.html" class="sidebar-link active">
+
+                <span class="icon">📝</span>
+
+                <span>Create CV</span>
+
+            </a>
+
+
+           <a href="saved-cv.html" class="sidebar-link">
+
+                <span class="icon">📁</span>
+
+                <span>Saved CV</span>
+
+            </a>
+
+
+            <a href="#" class="sidebar-link" id="profileBtn">
+
+                <span class="icon">👤</span>
+
+                <span>Profile</span>
+
+            </a>
+
+
+            <a href="#" class="sidebar-link">
+
+                <span class="icon">⚙️</span>
+
+                <span>Settings</span>
+
+            </a>
+
+        </nav>
+
+
+        <div class="sidebar-bottom">
+
+            <button
+                type="button"
+                id="logoutBtn"
+                class="logout-btn"
+            >
+
+                <span class="icon">🚪</span>
+
+                Logout
+
+            </button>
+
+        </div>
+
+    </aside>
+
+
+
+    <!-- =========================
+         MAIN CONTENT
+         ========================= -->
+
+    <main class="dashboard-main">
+
+
+        <section class="welcome">
+
+            <h1>
+                Welcome 👋
+            </h1>
+
+            <p>
+                Build your professional resume in just a few minutes.
+            </p>
+
+        </section>
+
+
+
+        <!-- =========================
+             DASHBOARD CARDS
+             ========================= -->
+
+        <section class="dashboard-cards">
+
+
+            <!-- CREATE CV -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    📝
+                </div>
+
+                <h2>
+                    Create New CV
+                </h2>
+
+                <p>
+                    Start building a brand new
+                    professional resume.
+                </p>
+
+                <a href="intro.html">
+
+                    <button>
+                        Create
+                    </button>
+
+                </a>
+
+            </div>
+
+
+
+            <!-- SAVED CV -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    📁
+                </div>
+
+                <h2>
+                    My Saved CVs
+                </h2>
+
+                <p>
+                    View and edit all the resumes
+                    you have created.
+                </p>
+
+                <a href="saved-cv.html">
+                    <button type="button">
+                        View
+                    </button>
+                </a>
+            </div>
+
+
+
+            <!-- PROFILE -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    👤
+                </div>
+
+                <h2>
+                    My Profile
+                </h2>
+
+                <p>
+                    Manage your account information.
+                </p>
+
+                <button id="viewProfile">
+
+                    Open
+
+                </button>
+
+            </div>
+
+
+
+            <!-- SETTINGS -->
+
+            <div class="dashboard-card">
+
+                <div class="card-icon">
+                    ⚙️
+                </div>
+
+                <h2>
+                    Settings
+                </h2>
+
+                <p>
+                    Customize your Dream CV experience.
+                </p>
+
+                <button>
+
+                    Settings
+
+                </button>
+
+            </div>
+
+
+        </section>
+
+
+    </main>
+
+
+
+    <!-- =========================
+         FOOTER
+         ========================= -->
+
+    <footer>
+
+        © 2026 Dream CV Maker. All Rights Reserved.
+
+    </footer>
+
+
+
+    <script src="js/dashboard.js"></script>
+
+</body>
+
+</html>
