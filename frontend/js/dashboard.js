@@ -47,34 +47,36 @@ createCV.addEventListener("click", () => {
 // My Saved CVs
 // =========================
 
-const savedCVButton = document.querySelectorAll(".card button")[1];
+const savedCVButton =
+    document.querySelector("a[href='saved-cv.html'] button");
 
-savedCVButton.addEventListener("click", () => {
-
-    alert("My Saved CVs feature is coming soon!");
-
-});
+if (savedCVButton) {
+    savedCVButton.addEventListener("click", () => {
+        window.location.href = "saved-cv.html";
+    });
+}
 
 // =========================
 // My Profile
 // =========================
 
-const profileButton = document.querySelectorAll(".card button")[2];
+const profileButton = document.getElementById("viewProfile");
 
-profileButton.addEventListener("click", () => {
-
-    alert("Profile page will be available soon!");
-
-});
+if (profileButton) {
+    profileButton.addEventListener("click", () => {
+        alert("Profile page will be available soon!");
+    });
+}
 
 // =========================
 // Settings
 // =========================
 
-const settingsButton = document.querySelectorAll(".card button")[3];
+const settingsButton =
+    document.querySelectorAll(".dashboard-card button")[3];
 
-settingsButton.addEventListener("click", () => {
-
-    alert("Settings page will be available soon!");
-
-});
+if (settingsButton) {
+    settingsButton.addEventListener("click", () => {
+        alert("Settings page will be available soon!");
+    });
+}

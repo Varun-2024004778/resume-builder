@@ -388,7 +388,12 @@ router.post("/summary", authenticateUser, async (req, res) => {
         resume.summary = summary;
 
         // Mark CV as completed if all required sections are filled
-        resume.isCompleted = true;
+        resume.isCompleted =
+            Boolean(resume.contact?.firstname) &&
+            resume.education?.length > 0 &&
+            resume.skills?.length > 0 &&
+            resume.projects?.length > 0 &&
+            Boolean(summary.trim());
 
         // Save updated resume
         await resume.save();
