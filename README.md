@@ -1,30 +1,68 @@
-# Resume Builder
+# Dream CV Resume Builder
 
-Resume Builder is a web application for creating and previewing a structured resume. It provides a browser-based frontend for account registration, login, resume data entry, saved resume retrieval, and PDF printing, with an Express and MongoDB backend secured by JSON Web Tokens (JWT).
+Dream CV is a modern resume builder that helps users create a professional CV through a simple, guided online experience.
 
-## Features
+Users can enter their contact information, education, work experience, skills, projects, certifications, and professional summary. The application organizes that information into a clean, formal resume preview that can be viewed, edited, printed, or saved as a PDF.
 
-- User registration and login
-- Password hashing with `bcryptjs`
-- JWT-based authentication
-- Contact information form
-- Education information form
-- Skills and professional summary forms
-- Project information form
-- Resume preview page
-- Saved resume retrieval
-- Browser print dialog for saving a resume as PDF
-- MongoDB persistence through Mongoose
+## Purpose
+
+The purpose of Dream CV is to make resume creation faster, more structured, and easier to manage.
+
+The application helps users:
+
+- Create a complete professional resume
+- Organize career information in the correct order
+- Reuse and update saved resume details
+- Preview resume data before downloading
+- Generate a print-ready A4 PDF
+- Access the resume builder from desktop or mobile devices
+
+## Resume sections
+
+The resume builder collects information in this order:
+
+1. Contact Information
+2. Education and Training
+3. Work Experience
+4. Skills
+5. Projects
+6. Certifications
+7. Professional Summary
+
+The resume preview presents the information in this order:
+
+1. Professional Summary
+2. Skills
+3. Experience
+4. Education and Training
+5. Projects
+6. Certifications
+
+## Key features
+
+- Guided resume-building workflow
+- Multiple education entries
+- Multiple work-experience entries
+- Custom and selected skill lists
+- Multiple projects with repository links
+- Professional certifications with credential links
+- Saved CV management
+- Formal resume preview
+- Print and Save PDF support
+- Account registration and login
+- Forgot-password and password-reset support
+- Responsive navigation sidebar
+- Mobile-friendly slide-in menu
 
 ## Technology stack
 
 ### Frontend
 
-- HTML
-- CSS
+- HTML5
+- CSS3
 - Vanilla JavaScript
-- Browser `fetch` API
-- Browser `localStorage` for the JWT token
+- Responsive browser layout
+- Fetch API
 
 ### Backend
 
@@ -32,183 +70,22 @@ Resume Builder is a web application for creating and previewing a structured res
 - Express
 - MongoDB
 - Mongoose
-- JSON Web Token (`jsonwebtoken`)
-- `bcryptjs`
-- `cors`
-- `dotenv`
+- JSON Web Tokens
+- BCrypt
+- Express Rate Limit
+- Resend email API
 
-## Project structure
+## Security
 
-```text
-resume-builder/
-├── backend/
-│   ├── config/
-│   │   └── db.js
-│   ├── models/
-│   │   ├── Resume.js
-│   │   └── User.js
-│   ├── routes/
-│   │   ├── auth.js
-│   │   └── resume.js
-│   ├── package.json
-│   ├── package-lock.json
-│   └── server.js
-├── frontend/
-│   ├── css/
-│   ├── js/
-│   └── *.html
-├── demo.html
-└── .gitignore
-```
+Dream CV uses hashed passwords, JWT-based authentication, time-limited password-reset tokens, restricted CORS settings, authentication rate limits, and HTTP/HTTPS validation for external links.
 
-## Prerequisites
+## PDF output
 
-- Node.js 18 or newer
-- npm
-- MongoDB, either a local installation or a MongoDB Atlas database
+The resume preview uses a compact A4 portrait layout with:
 
-## Configuration
-
-Create a `.env` file inside the `backend` directory:
-
-```env
-MONGO_URI=mongodb://127.0.0.1:27017/resume-builder
-JWT_SECRET=replace-with-a-long-random-secret
-PORT=5000
-```
-
-Do not commit `.env` or real credentials. The repository's `.gitignore` already excludes environment files.
-
-## Installation
-
-Clone the repository and install the backend dependencies:
-
-```bash
-git clone https://github.com/Varun-2024004778/resume-builder.git
-cd resume-builder/backend
-npm install
-```
-
-## Running the backend
-
-From the `backend` directory:
-
-```bash
-npm start
-```
-
-For development with automatic restarts:
-
-```bash
-npm run dev
-```
-
-The API starts on:
-
-```text
-http://localhost:5000
-```
-
-The root endpoint can be used as a basic health check:
-
-```text
-GET /
-```
-
-Expected response:
-
-```text
-Backend is running successfully!
-```
-
-## Running the frontend
-
-After starting the backend, open `frontend/intro.html` in a browser. The frontend pages call the API at `http://127.0.0.1:5000`.
-
-For more reliable local development, serve the repository with a static file server instead of opening the HTML files directly. For example, from the repository root:
-
-```bash
-npx serve frontend
-```
-
-Then open the URL printed by the static server.
-
-## API overview
-
-### Authentication
-
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/register` | Register a new user |
-| `POST` | `/api/login` | Authenticate a user and receive a JWT |
-
-### Resume data
-
-Resume endpoints require an `Authorization` header:
-
-```http
-Authorization: Bearer <token>
-```
-
-The backend provides routes for saving and retrieving:
-
-- Contact information
-- Education
-- Skills
-- Professional summary
-- Projects
-- The complete resume
-
-The frontend form pages call these routes as the user progresses through the resume workflow.
-
-## Typical workflow
-
-1. Open the introduction page.
-2. Register an account.
-3. Log in to receive an authentication token.
-4. Complete the contact, education, skills, summary, and projects sections.
-5. Open the preview page to review the resume.
-6. Use the print action to print or save the resume as a PDF.
-
-## Troubleshooting
-
-### “Server is not running”
-
-Make sure the backend is running with `npm start` and that it is listening on port `5000`.
-
-### MongoDB connection failure
-
-Check that MongoDB is running and that `MONGO_URI` in `backend/.env` is correct.
-
-### Authentication errors
-
-Log in again if the token has expired. Also verify that `JWT_SECRET` is defined and has not changed between server restarts.
-
-### Frontend cannot reach the API
-
-Confirm that the frontend JavaScript API URLs match the backend host and port. The current frontend uses `http://127.0.0.1:5000`.
-
-## Security considerations
-
-- Use a strong, unique `JWT_SECRET`.
-- Never commit `.env` files, database credentials, or production tokens.
-- Restrict CORS origins before deploying outside local development.
-- Validate and sanitize user input on the server.
-- Use HTTPS in production.
-- Configure token expiration and secure token storage for production use.
-- Use a production process manager and disable verbose development behavior before deployment.
-
-## Future improvements
-
-- Add a frontend build tool or static web server configuration.
-- Add automated backend and frontend tests.
-- Add schema validation for request bodies.
-- Support multiple education entries and projects per resume.
-- Add selectable resume templates.
-- Add server-side PDF generation and download.
-- Add password reset and email verification.
-- Add centralized API configuration instead of hard-coded frontend URLs.
-
-## License
-
-No license is currently specified for this repository.
+- A circular initials header
+- A formal serif-style resume design
+- Ruled section headings
+- Compact education and experience entries
+- Two-column project and certification areas
+- Hidden navigation and interface controls during printing
