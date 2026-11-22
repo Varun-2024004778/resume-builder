@@ -4,19 +4,6 @@ const nextBtn = document.getElementById("nextBtn");
 
 let projectCount = 0;
 
-function escapeProjectHTML(value) {
-    if (!value) return "";
-
-    const div = document.createElement("div");
-    div.textContent = String(value);
-    return div.innerHTML;
-}
-
-function escapeProjectAttribute(value) {
-    return escapeProjectHTML(value).replace(/`/g, "&#96;");
-}
-
-
 // =========================
 // Create Project Card
 // =========================
@@ -42,7 +29,6 @@ function createProjectCard(project = {}) {
             id="title-${projectCount}"
             class="project-title"
             placeholder="Name of the project"
-            value="${escapeProjectAttribute(project.title)}"
             required
         >
 
@@ -60,7 +46,7 @@ function createProjectCard(project = {}) {
             cols="30"
             placeholder="Tell about the project"
             required
-        >${escapeProjectHTML(project.description)}</textarea>
+        ></textarea>
 
         <br><br>
 
@@ -74,7 +60,6 @@ function createProjectCard(project = {}) {
             id="stack-${projectCount}"
             class="project-stack"
             placeholder="Example: HTML, CSS, JavaScript"
-            value="${escapeProjectAttribute(project.stack)}"
             required
         >
 
@@ -90,7 +75,6 @@ function createProjectCard(project = {}) {
             id="github-${projectCount}"
             class="project-github"
             placeholder="https://github.com/username/project"
-            value="${escapeProjectAttribute(project.github)}"
         >
 
         <br><br>
@@ -104,6 +88,13 @@ function createProjectCard(project = {}) {
 
         <br><br>
     `;
+
+    // Values are assigned through the DOM, never interpolated into markup,
+    // so user data can never break out of an attribute or inject HTML.
+    projectCard.querySelector(".project-title").value = project.title ?? "";
+    projectCard.querySelector(".project-description").value = project.description ?? "";
+    projectCard.querySelector(".project-stack").value = project.stack ?? "";
+    projectCard.querySelector(".project-github").value = project.github ?? "";
 
     projectsContainer.appendChild(projectCard);
 
@@ -143,7 +134,7 @@ async function loadProjects() {
     try {
 
         const response = await fetch(
-            "http://127.0.0.1:5000/api/resume",
+            API_BASE + "/api/resume",
             {
                 method: "GET",
 
@@ -316,7 +307,7 @@ nextBtn.addEventListener("click", async () => {
     try {
 
         const response = await fetch(
-            "http://127.0.0.1:5000/api/resume/projects",
+            API_BASE + "/api/resume/projects",
             {
 
                 method: "POST",

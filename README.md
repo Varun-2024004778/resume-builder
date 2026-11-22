@@ -77,7 +77,42 @@ The resume preview presents the information in this order:
 
 ## Security
 
-Dream CV uses hashed passwords, JWT-based authentication, time-limited password-reset tokens, restricted CORS settings, authentication rate limits, and HTTP/HTTPS validation for external links.
+- **Passwords:** bcrypt (cost 12), 10-72 characters. Login takes the same time whether or not the email exists.
+- **Sessions:** JWT (1 day) tied to a per-user `tokenVersion`; resetting a password revokes every existing session, and tokens of deleted users stop working immediately.
+- **Password reset:** random 32-byte token stored only as a SHA-256 hash, 30-minute expiry, single use (atomic), one email per account per minute. The response is identical for registered and unregistered addresses, even if the email provider fails.
+- **Rate limiting:** login (per IP *and* per account, failed attempts only), register, forgot/reset password and the resume API. Proxy-aware via `TRUST_PROXY`.
+- **Input handling:** every resume field is type-checked, length-limited and whitelisted server-side; links must be `http(s)`; unknown fields are dropped; MongoDB operator injection is blocked (`sanitizeFilter` plus type checks).
+- **Output handling:** user data is never interpolated into HTML attributes; the preview escapes all values and only renders `http(s)` links.
+- **Browser hardening:** every page ships a Content-Security-Policy (`script-src 'self'`, no inline scripts) and the reset page sends no Referer and removes the token from the URL.
+- **API hardening:** `helmet` headers, strict CORS, JSON-only errors without stack traces, 100 kB body limit.
+- **Fail-fast config:** the server will not start with a missing/weak/placeholder `JWT_SECRET`, or (in production) a non-https `FRONTEND_URL`.
+
+## Running locally
+
+```bash
+cd backend
+cp .env.example .env        # then fill in JWT_SECRET (see the comment in the file)
+npm install
+npm run dev
+```
+
+Serve the `frontend/` folder with any static server (for example VS Code Live Server on port 5500). The frontend talks to `http://127.0.0.1:5000` automatically when opened from localhost.
+
+## Deploying
+
+1. **Backend:** set `NODE_ENV=production`, a real `JWT_SECRET`, `MONGO_URI` (with authentication enabled, e.g. MongoDB Atlas), `FRONTEND_URL=https://your-site`, `TRUST_PROXY=1` (one proxy in front), and a verified Resend domain for `RESEND_FROM`.
+2. **Frontend:** set `PRODUCTION_API_BASE` in `frontend/js/config.js` to your HTTPS API origin (or leave it empty if `/api` is proxied from the same origin).
+3. **Host headers:** serve everything over HTTPS and add `Strict-Transport-Security`, `X-Content-Type-Options: nosniff`, and `frame-ancestors 'none'` (or `X-Frame-Options: DENY`) on the frontend host. `frame-ancestors` cannot be set from a `<meta>` tag.
+4. **Existing database:** `Resume.userId` is now a unique index. If a development database contains duplicate resumes for one user, remove the duplicates first or the index build will fail.
+
+## Tests
+
+```bash
+cd backend
+TEST_MONGO_URI=mongodb://127.0.0.1:27017/dreamcv_test npm test
+```
+
+The suite needs a throwaway MongoDB (the database is **dropped** at the start of the run). Reset emails are intercepted in-process; nothing is sent.
 
 ## PDF output
 

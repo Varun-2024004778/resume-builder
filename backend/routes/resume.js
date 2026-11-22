@@ -2,148 +2,88 @@ const express = require("express");
 const router = express.Router();
 
 const Resume = require("../models/Resume");
-const jwt = require("jsonwebtoken");
+const authenticateUser = require("../middleware/auth");
+const v = require("../utils/validators");
+
+const { ValidationError } = v;
+
+// Limits (also keep documents small and predictable)
+const MAX_EXPERIENCE = 20;
+const MAX_PROJECTS = 20;
+const MAX_CERTIFICATIONS = 30;
+const MAX_SKILLS = 60;
+
+function fail(res, error, fallbackMessage) {
+    if (error instanceof ValidationError) {
+        return res.status(400).json({ message: error.message });
+    }
+    console.error(error);
+    return res.status(500).json({ message: fallbackMessage });
+}
+
+const notFoundMessage = "Resume not found. Please complete contact information first.";
+
 
 // =========================
-// Authentication Middleware
-// =========================
-
-const authenticateUser = (req, res, next) => {
-
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
-        return res.status(401).json({
-            message: "Authentication required"
-        });
-    }
-
-    const token = authHeader.split(" ")[1];
-
-    try {
-
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_SECRET
-        );
-
-        req.userId = decoded.id;
-
-        next();
-
-    } catch (error) {
-
-        return res.status(401).json({
-            message: "Invalid or expired token"
-        });
-
-    }
-};
-
-
-/// =========================
 // Save / Update Contact
 // =========================
 
 router.post("/contact", authenticateUser, async (req, res) => {
-
     try {
+        const body = req.body ?? {};
+        const fields = ["firstname", "lastname", "phone", "email", "address", "city", "state", "country", "postalcode"];
 
-        const {
-            firstname,
-            lastname,
-            phone,
-            email,
-            address,
-            city,
-            state,
-            country,
-            postalcode
-        } = req.body;
-
-
-        // Check required fields
-
-        if (
-            !firstname ||
-            !lastname ||
-            !phone ||
-            !email ||
-            !address ||
-            !city ||
-            !state ||
-            !country ||
-            !postalcode
-        ) {
-
-            return res.status(400).json({
-                message: "Please fill all the fields"
-            });
-
+        if (fields.some((f) => !body[f])) {
+            return res.status(400).json({ message: "Please fill all the fields" });
         }
 
-
-        // Find existing resume
-
-        let resume = await Resume.findOne({
-            userId: req.userId
-        });
-
-
-        // If resume doesn't exist, create it
-
-        if (!resume) {
-
-            resume = new Resume({
-                userId: req.userId
-            });
-
-        }
-
-
-        // Update contact information
-
-        resume.contact = {
-
-            firstname,
-            lastname,
-            phone,
-            email,
-            address,
-            city,
-            state,
-            country,
-            postalcode
-
+        const contact = {
+            firstname: v.text(body.firstname, "First name", { max: 100, required: true }),
+            lastname: v.text(body.lastname, "Last name", { max: 100, required: true }),
+            phone: v.text(body.phone, "Phone", { max: 30, required: true }),
+            email: v.text(body.email, "Email", { max: 254, required: true }),
+            address: v.text(body.address, "Address", { max: 200, required: true }),
+            city: v.text(body.city, "City", { max: 100, required: true }),
+            state: v.text(body.state, "State", { max: 100, required: true }),
+            country: v.text(body.country, "Country", { max: 100, required: true }),
+            postalcode: v.text(body.postalcode, "Postal code", { max: 20, required: true })
         };
 
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact.email)) {
+            return res.status(400).json({ message: "Please enter a valid email address" });
+        }
 
-        // Save resume
+        const save = async () => {
+            let resume = await Resume.findOne({ userId: req.userId });
+            if (!resume) {
+                resume = new Resume({ userId: req.userId });
+            }
+            resume.contact = contact;
+            await resume.save();
+            return resume;
+        };
 
-        await resume.save();
-
+        let resume;
+        try {
+            resume = await save();
+        } catch (error) {
+            // Two first-time saves raced; the unique index on userId stopped
+            // the duplicate. Retry once against the resume that won.
+            if (error.code === 11000) {
+                resume = await save();
+            } else {
+                throw error;
+            }
+        }
 
         res.status(200).json({
-
             message: "Contact information saved successfully",
-
             resumeId: resume._id
-
         });
-
 
     } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-
-            message: "Failed to save contact information"
-
-        });
-
+        fail(res, error, "Failed to save contact information");
     }
-
 });
 
 
@@ -152,90 +92,36 @@ router.post("/contact", authenticateUser, async (req, res) => {
 // =========================
 
 router.post("/education", authenticateUser, async (req, res) => {
-
     try {
+        const body = req.body ?? {};
 
-        const {
-            institution,
-            location,
-            degree,
-            graduationDate,
-            enrolled
-        } = req.body;
-
-
-        // Check required fields
-
-        if (
-            !institution ||
-            !location ||
-            !degree
-        ) {
-
+        if (!body.institution || !body.location || !body.degree) {
             return res.status(400).json({
-                message:
-                    "Please fill all the required education fields"
+                message: "Please fill all the required education fields"
             });
-
         }
 
+        const education = {
+            institution: v.text(body.institution, "Institution", { max: 200, required: true }),
+            location: v.text(body.location, "Location", { max: 200, required: true }),
+            degree: v.text(body.degree, "Degree", { max: 200, required: true }),
+            graduationDate: v.dateString(body.graduationDate, "Graduation date"),
+            enrolled: body.enrolled === true
+        };
 
-        // Find existing resume
-
-        const resume = await Resume.findOne({
-            userId: req.userId
-        });
-
-
+        const resume = await Resume.findOne({ userId: req.userId });
         if (!resume) {
-
-            return res.status(404).json({
-                message:
-                    "Resume not found. Please complete contact information first."
-            });
-
+            return res.status(404).json({ message: notFoundMessage });
         }
 
-
-        // Update existing education
-
-        resume.education = [
-            {
-                institution,
-                location,
-                degree,
-                graduationDate,
-                enrolled
-            }
-        ];
-
-
-        // Save resume
-
+        resume.education = [education];
         await resume.save();
 
-
-        res.status(200).json({
-
-            message:
-                "Education information saved successfully"
-
-        });
-
+        res.status(200).json({ message: "Education information saved successfully" });
 
     } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-
-            message:
-                "Failed to save education information"
-
-        });
-
+        fail(res, error, "Failed to save education information");
     }
-
 });
 
 // =========================
@@ -244,33 +130,38 @@ router.post("/education", authenticateUser, async (req, res) => {
 
 router.post("/experience", authenticateUser, async (req, res) => {
     try {
-        const { experience } = req.body;
+        const raw = (req.body ?? {}).experience;
 
-        if (!experience || !Array.isArray(experience) || experience.length === 0) {
-            return res.status(400).json({
-                message: "Please add at least one work experience"
-            });
+        if (!Array.isArray(raw) || raw.length === 0) {
+            return res.status(400).json({ message: "Please add at least one work experience" });
         }
+        v.list(raw, "Work experience", { max: MAX_EXPERIENCE });
+
+        const experience = raw.map((item) => {
+            const e = v.entry(item, "experience");
+            return {
+                company: v.text(e.company, "Company", { max: 150, required: true }),
+                role: v.text(e.role, "Job title", { max: 150, required: true }),
+                location: v.text(e.location, "Location", { max: 150 }),
+                startDate: v.dateString(e.startDate, "Start date"),
+                endDate: v.dateString(e.endDate, "End date"),
+                current: e.current === true,
+                description: v.text(e.description, "Responsibilities", { max: 3000 })
+            };
+        });
 
         const resume = await Resume.findOne({ userId: req.userId });
-
         if (!resume) {
-            return res.status(404).json({
-                message: "Resume not found. Please complete contact information first."
-            });
+            return res.status(404).json({ message: notFoundMessage });
         }
 
         resume.experience = experience;
         await resume.save();
 
-        res.status(200).json({
-            message: "Work experience saved successfully"
-        });
+        res.status(200).json({ message: "Work experience saved successfully" });
+
     } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: "Failed to save work experience"
-        });
+        fail(res, error, "Failed to save work experience");
     }
 });
 
@@ -279,58 +170,42 @@ router.post("/experience", authenticateUser, async (req, res) => {
 // =========================
 
 router.post("/skills", authenticateUser, async (req, res) => {
-
     try {
+        const raw = (req.body ?? {}).skills;
 
-        const { skills } = req.body;
+        if (!Array.isArray(raw) || raw.length === 0) {
+            return res.status(400).json({ message: "Please select at least one skill" });
+        }
+        v.list(raw, "Skills", { max: MAX_SKILLS });
 
-        // Check skills
-        if (
-            !skills ||
-            !Array.isArray(skills) ||
-            skills.length === 0
-        ) {
-
-            return res.status(400).json({
-                message: "Please select at least one skill"
-            });
-
+        // trim, drop blanks, de-duplicate case-insensitively (keeping order)
+        const seen = new Set();
+        const skills = [];
+        for (const item of raw) {
+            const skill = v.text(item, "Skill", { max: 60 });
+            if (skill && !seen.has(skill.toLowerCase())) {
+                seen.add(skill.toLowerCase());
+                skills.push(skill);
+            }
         }
 
-        // Find existing resume
-        const resume = await Resume.findOne({
-            userId: req.userId
-        });
+        if (skills.length === 0) {
+            return res.status(400).json({ message: "Please select at least one skill" });
+        }
 
+        const resume = await Resume.findOne({ userId: req.userId });
         if (!resume) {
-
-            return res.status(404).json({
-                message:
-                    "Resume not found. Please complete contact information first."
-            });
-
+            return res.status(404).json({ message: notFoundMessage });
         }
 
-        // Replace old skills with updated skills
         resume.skills = skills;
-
-        // Save resume
         await resume.save();
 
-        res.status(200).json({
-            message: "Skills saved successfully"
-        });
+        res.status(200).json({ message: "Skills saved successfully" });
 
     } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-            message: "Failed to save skills"
-        });
-
+        fail(res, error, "Failed to save skills");
     }
-
 });
 
 // =========================
@@ -338,53 +213,37 @@ router.post("/skills", authenticateUser, async (req, res) => {
 // =========================
 
 router.post("/projects", authenticateUser, async (req, res) => {
-
     try {
+        const raw = (req.body ?? {}).projects;
 
-        const { projects } = req.body;
-
-        // Check projects
-        if (!projects || !Array.isArray(projects) || projects.length === 0) {
-
-            return res.status(400).json({
-                message: "Please add at least one project"
-            });
-
+        if (!Array.isArray(raw) || raw.length === 0) {
+            return res.status(400).json({ message: "Please add at least one project" });
         }
+        v.list(raw, "Projects", { max: MAX_PROJECTS });
 
-        // Find the user's resume
-        const resume = await Resume.findOne({
-            userId: req.userId
+        const projects = raw.map((item) => {
+            const p = v.entry(item, "project");
+            return {
+                title: v.text(p.title, "Project title", { max: 150, required: true }),
+                description: v.text(p.description, "Project description", { max: 2000, required: true }),
+                stack: v.text(p.stack, "Technologies", { max: 300, required: true }),
+                github: v.httpUrl(p.github, "GitHub URL")
+            };
         });
 
+        const resume = await Resume.findOne({ userId: req.userId });
         if (!resume) {
-
-            return res.status(404).json({
-                message: "Resume not found. Please complete contact information first."
-            });
-
+            return res.status(404).json({ message: notFoundMessage });
         }
 
-        // Save projects
         resume.projects = projects;
-
-        // Save updated resume
         await resume.save();
 
-        res.status(200).json({
-            message: "Projects saved successfully"
-        });
+        res.status(200).json({ message: "Projects saved successfully" });
 
     } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-            message: "Failed to save projects"
-        });
-
+        fail(res, error, "Failed to save projects");
     }
-
 });
 
 // =========================
@@ -393,39 +252,36 @@ router.post("/projects", authenticateUser, async (req, res) => {
 
 router.post("/certifications", authenticateUser, async (req, res) => {
     try {
-        const { certifications } = req.body;
+        const raw = (req.body ?? {}).certifications;
 
-        if (
-            !certifications ||
-            !Array.isArray(certifications) ||
-            certifications.length === 0
-        ) {
-            return res.status(400).json({
-                message: "Please add at least one certification"
-            });
+        if (!Array.isArray(raw) || raw.length === 0) {
+            return res.status(400).json({ message: "Please add at least one certification" });
         }
+        v.list(raw, "Certifications", { max: MAX_CERTIFICATIONS });
 
-        const resume = await Resume.findOne({
-            userId: req.userId
+        const certifications = raw.map((item) => {
+            const c = v.entry(item, "certification");
+            return {
+                name: v.text(c.name, "Certification name", { max: 200, required: true }),
+                issuer: v.text(c.issuer, "Issuing organization", { max: 200, required: true }),
+                issueDate: v.dateString(c.issueDate, "Issue date"),
+                expiryDate: v.dateString(c.expiryDate, "Expiration date"),
+                url: v.httpUrl(c.url, "Credential URL")
+            };
         });
 
+        const resume = await Resume.findOne({ userId: req.userId });
         if (!resume) {
-            return res.status(404).json({
-                message: "Resume not found. Please complete contact information first."
-            });
+            return res.status(404).json({ message: notFoundMessage });
         }
 
         resume.certifications = certifications;
         await resume.save();
 
-        res.status(200).json({
-            message: "Certifications saved successfully"
-        });
+        res.status(200).json({ message: "Certifications saved successfully" });
+
     } catch (error) {
-        console.error(error);
-        res.status(500).json({
-            message: "Failed to save certifications"
-        });
+        fail(res, error, "Failed to save certifications");
     }
 });
 
@@ -435,34 +291,22 @@ router.post("/certifications", authenticateUser, async (req, res) => {
 // =========================
 
 router.post("/summary", authenticateUser, async (req, res) => {
-
     try {
+        const rawSummary = (req.body ?? {}).summary;
 
-        const { summary } = req.body;
-
-        // Check summary
-        if (!summary || !summary.trim()) {
-
-            return res.status(400).json({
-                message: "Please enter your professional summary"
-            });
-
+        if (typeof rawSummary !== "string" || !rawSummary.trim()) {
+            return res.status(400).json({ message: "Please enter your professional summary" });
         }
 
-        // Find the user's resume
-        const resume = await Resume.findOne({
-            userId: req.userId
-        });
+        const summary = v.text(rawSummary, "Summary", { max: 5000, required: true });
 
+        const resume = await Resume.findOne({ userId: req.userId });
         if (!resume) {
-
             return res.status(404).json({
                 message: "Resume not found. Please complete your CV information first."
             });
-
         }
 
-        // Save summary
         resume.summary = summary;
 
         // Mark CV as completed if all required sections are filled
@@ -473,25 +317,15 @@ router.post("/summary", authenticateUser, async (req, res) => {
             resume.skills?.length > 0 &&
             resume.projects?.length > 0 &&
             resume.certifications?.length > 0 &&
-            Boolean(summary.trim());
+            Boolean(summary);
 
-        // Save updated resume
         await resume.save();
 
-        res.status(200).json({
-            message: "Summary saved successfully"
-        });
+        res.status(200).json({ message: "Summary saved successfully" });
 
     } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-            message: "Failed to save summary"
-        });
-
+        fail(res, error, "Failed to save summary");
     }
-
 });
 
 
@@ -500,36 +334,18 @@ router.post("/summary", authenticateUser, async (req, res) => {
 // =========================
 
 router.get("/", authenticateUser, async (req, res) => {
-
     try {
-
-        // Find the resume of the logged-in user
-        const resume = await Resume.findOne({
-            userId: req.userId
-        });
+        const resume = await Resume.findOne({ userId: req.userId });
 
         if (!resume) {
-
-            return res.status(404).json({
-                message: "Resume not found"
-            });
-
+            return res.status(404).json({ message: "Resume not found" });
         }
 
-        res.status(200).json({
-            resume
-        });
+        res.status(200).json({ resume });
 
     } catch (error) {
-
-        console.error(error);
-
-        res.status(500).json({
-            message: "Failed to load CV"
-        });
-
+        fail(res, error, "Failed to load CV");
     }
-
 });
 
 module.exports = router;

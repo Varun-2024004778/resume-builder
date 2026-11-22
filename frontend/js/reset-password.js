@@ -1,6 +1,15 @@
 const resetPasswordForm =
     document.getElementById("resetPasswordForm");
 
+// Read the one-time token once, then remove it from the address bar so it does
+// not linger in browser history or get copied along with the URL.
+const token =
+    new URLSearchParams(window.location.search).get("token");
+
+if (token) {
+    window.history.replaceState(null, "", window.location.pathname);
+}
+
 resetPasswordForm.addEventListener("submit", async (event) => {
     event.preventDefault();
 
@@ -14,8 +23,10 @@ resetPasswordForm.addEventListener("submit", async (event) => {
         return;
     }
 
-    const token =
-        new URLSearchParams(window.location.search).get("token");
+    if (password.length < 10) {
+        alert("Password must be at least 10 characters.");
+        return;
+    }
 
     if (!token) {
         alert("Reset token is missing.");
@@ -24,7 +35,7 @@ resetPasswordForm.addEventListener("submit", async (event) => {
 
     try {
         const response = await fetch(
-            "http://127.0.0.1:5000/api/reset-password",
+            API_BASE + "/api/reset-password",
             {
                 method: "POST",
                 headers: {

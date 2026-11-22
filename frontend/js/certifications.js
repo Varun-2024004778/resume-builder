@@ -70,7 +70,7 @@ async function loadCertifications() {
     }
 
     try {
-        const response = await fetch("http://127.0.0.1:5000/api/resume", {
+        const response = await fetch(API_BASE + "/api/resume", {
             headers: { "Authorization": `Bearer ${token}` }
         });
         const data = await response.json();
@@ -130,7 +130,7 @@ nextBtn.addEventListener("click", async () => {
 
     try {
         const response = await fetch(
-            "http://127.0.0.1:5000/api/resume/certifications",
+            API_BASE + "/api/resume/certifications",
             {
                 method: "POST",
                 headers: {

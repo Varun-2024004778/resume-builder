@@ -48,7 +48,7 @@ async function saveSection(path, body) {
 
     try {
         const response = await fetch(
-            `http://127.0.0.1:5000/api/resume${path}`,
+            `${API_BASE}/api/resume${path}`,
             {
                 method: "POST",
                 headers: {
@@ -235,7 +235,7 @@ async function confirmSavedCV() {
 
     try {
         const response = await fetch(
-            "http://127.0.0.1:5000/api/resume",
+            API_BASE + "/api/resume",
             {
                 headers: {
                     "Authorization": `Bearer ${token}`

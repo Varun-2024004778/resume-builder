@@ -18,7 +18,7 @@ async function loadSummary() {
     try {
 
         const response = await fetch(
-            "http://127.0.0.1:5000/api/resume",
+            API_BASE + "/api/resume",
             {
                 method: "GET",
 
@@ -97,7 +97,7 @@ summaryForm.addEventListener("submit", async (e) => {
     try {
 
         const response = await fetch(
-            "http://127.0.0.1:5000/api/resume/summary",
+            API_BASE + "/api/resume/summary",
             {
 
                 method: "POST",

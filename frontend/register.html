@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' http://127.0.0.1:5000 http://localhost:5000 https:; object-src 'none'; base-uri 'self'; form-action 'self'">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register</title>
 
@@ -41,6 +42,9 @@
                 <label>Password</label>
                 <input
                     type="password"
+                    minlength="10"
+                    maxlength="72"
+                    autocomplete="new-password"
                     id="password"
                     placeholder="Enter password"
                     required
@@ -62,6 +66,7 @@
 
 </div>
 
+<script src="js/config.js"></script>
 <script src="js/script.js"></script>
 
 </body>

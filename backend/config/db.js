@@ -1,5 +1,10 @@
 const mongoose = require("mongoose");
 
+// Defense in depth against NoSQL operator injection: any filter value that
+// looks like { $ne: ... } is wrapped in $eq unless explicitly marked
+// mongoose.trusted(...) by our own code.
+mongoose.set("sanitizeFilter", true);
+
 const connectDB = async () => {
     try {
         if (!process.env.MONGO_URI) {

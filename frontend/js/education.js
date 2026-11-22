@@ -19,7 +19,7 @@ async function loadEducationData() {
     try {
 
         const response = await fetch(
-            "http://127.0.0.1:5000/api/resume",
+            API_BASE + "/api/resume",
             {
                 method: "GET",
 
@@ -134,7 +134,7 @@ nextBtn.addEventListener("click", async () => {
     try {
 
         const response = await fetch(
-            "http://127.0.0.1:5000/api/resume/education",
+            API_BASE + "/api/resume/education",
             {
 
                 method: "POST",

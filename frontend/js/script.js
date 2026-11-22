@@ -14,9 +14,14 @@ if (registerForm) {
         const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value;
 
+        if (password.length < 10) {
+            alert("Password must be at least 10 characters.");
+            return;
+        }
+
         try {
 
-            const response = await fetch("http://127.0.0.1:5000/api/register", {
+            const response = await fetch(API_BASE + "/api/register", {
 
                 method: "POST",
 
@@ -70,7 +75,7 @@ if (loginForm) {
 
         try {
 
-            const response = await fetch("http://127.0.0.1:5000/api/login", {
+            const response = await fetch(API_BASE + "/api/login", {
 
                 method: "POST",
 

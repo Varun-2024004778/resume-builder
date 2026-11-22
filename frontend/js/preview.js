@@ -32,7 +32,7 @@ async function loadCV() {
     try {
 
         const response = await fetch(
-            "http://127.0.0.1:5000/api/resume",
+            API_BASE + "/api/resume",
             {
                 method: "GET",
 
@@ -391,15 +391,17 @@ function displayCV(resume) {
 
 function escapeHTML(value) {
 
-    if (!value) {
+    if (value === null || value === undefined) {
         return "";
     }
 
-    const div = document.createElement("div");
-
-    div.textContent = value;
-
-    return div.innerHTML;
+    // Escapes quotes as well, so the result is safe in text AND attribute context
+    return String(value)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
 
 }
 
