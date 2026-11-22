@@ -108,6 +108,40 @@ function saveEducation() {
     saveSection("/education", values);
 }
 
+function saveExperience() {
+    const experience = [];
+
+    document.querySelectorAll(".experience-card").forEach((card) => {
+        const company = card.querySelector(".experience-company")?.value.trim();
+        const role = card.querySelector(".experience-role")?.value.trim();
+        const location = card.querySelector(".experience-location")?.value.trim();
+        const startDate = card.querySelector(".experience-start")?.value;
+        const endDate = card.querySelector(".experience-end")?.value;
+        const current = card.querySelector(".experience-current")?.checked;
+        const description =
+            card.querySelector(".experience-description")?.value.trim();
+
+        if (company && role) {
+            experience.push({
+                company,
+                role,
+                location,
+                startDate,
+                endDate,
+                current,
+                description
+            });
+        }
+    });
+
+    if (experience.length === 0) {
+        alert("Please enter at least one work experience.");
+        return;
+    }
+
+    saveSection("/experience", { experience });
+}
+
 function saveSkills() {
     const form = document.getElementById("skillsForm");
     const skills = [];
@@ -154,6 +188,35 @@ function saveProjects() {
     saveSection("/projects", { projects });
 }
 
+function saveCertifications() {
+    const certifications = [];
+
+    document.querySelectorAll(".certification-card").forEach((card) => {
+        const name = card.querySelector(".cert-name")?.value.trim();
+        const issuer = card.querySelector(".cert-issuer")?.value.trim();
+        const issueDate = card.querySelector(".cert-date")?.value;
+        const expiryDate = card.querySelector(".cert-expiry")?.value;
+        const url = card.querySelector(".cert-url")?.value.trim();
+
+        if (name && issuer) {
+            certifications.push({
+                name,
+                issuer,
+                issueDate,
+                expiryDate,
+                url
+            });
+        }
+    });
+
+    if (certifications.length === 0) {
+        alert("Please enter at least one certification.");
+        return;
+    }
+
+    saveSection("/certifications", { certifications });
+}
+
 function saveSummary() {
     const summary =
         document.getElementById("summary")?.value.trim();
@@ -195,8 +258,10 @@ saveButton.addEventListener("click", () => {
 
     if (page === "contact.html") saveContact();
     else if (page === "education.html") saveEducation();
+    else if (page === "experience.html") saveExperience();
     else if (page === "skills.html") saveSkills();
     else if (page === "projects.html") saveProjects();
+    else if (page === "certifications.html") saveCertifications();
     else if (page === "summary.html") saveSummary();
     else confirmSavedCV();
 });

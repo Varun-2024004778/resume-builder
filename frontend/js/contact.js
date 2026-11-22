@@ -82,10 +82,6 @@ async function loadContactData() {
 // =========================
 
 nextBtn.addEventListener("click", async () => {
-    console.log("NEXT BUTTON CLICKED");
-    alert("Next button clicked");
-
-
     const contactData = {
 
         firstname:

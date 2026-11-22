@@ -4,6 +4,18 @@ const nextBtn = document.getElementById("nextBtn");
 
 let projectCount = 0;
 
+function escapeProjectHTML(value) {
+    if (!value) return "";
+
+    const div = document.createElement("div");
+    div.textContent = String(value);
+    return div.innerHTML;
+}
+
+function escapeProjectAttribute(value) {
+    return escapeProjectHTML(value).replace(/`/g, "&#96;");
+}
+
 
 // =========================
 // Create Project Card
@@ -30,7 +42,7 @@ function createProjectCard(project = {}) {
             id="title-${projectCount}"
             class="project-title"
             placeholder="Name of the project"
-            value="${project.title || ""}"
+            value="${escapeProjectAttribute(project.title)}"
             required
         >
 
@@ -48,7 +60,7 @@ function createProjectCard(project = {}) {
             cols="30"
             placeholder="Tell about the project"
             required
-        >${project.description || ""}</textarea>
+        >${escapeProjectHTML(project.description)}</textarea>
 
         <br><br>
 
@@ -62,7 +74,7 @@ function createProjectCard(project = {}) {
             id="stack-${projectCount}"
             class="project-stack"
             placeholder="Example: HTML, CSS, JavaScript"
-            value="${project.stack || ""}"
+            value="${escapeProjectAttribute(project.stack)}"
             required
         >
 
@@ -78,7 +90,7 @@ function createProjectCard(project = {}) {
             id="github-${projectCount}"
             class="project-github"
             placeholder="https://github.com/username/project"
-            value="${project.github || ""}"
+            value="${escapeProjectAttribute(project.github)}"
         >
 
         <br><br>
@@ -338,7 +350,7 @@ nextBtn.addEventListener("click", async () => {
             );
 
             window.location.href =
-                "summary.html";
+                "certifications.html";
 
         } else {
 

@@ -3,11 +3,16 @@
 // =========================
 
 const fullNameElement = document.getElementById("fullName");
+const initialsElement = document.getElementById("initials");
 const contactDetailsElement = document.getElementById("contactDetails");
 const summaryElement = document.getElementById("summary");
 const educationContainer = document.getElementById("educationContainer");
 const skillsContainer = document.getElementById("skillsContainer");
+const experienceContainer =
+    document.getElementById("experienceContainer");
 const projectsContainer = document.getElementById("projectsContainer");
+const certificationsContainer =
+    document.getElementById("certificationsContainer");
 
 
 // =========================
@@ -78,6 +83,18 @@ function displayCV(resume) {
 
         fullNameElement.textContent =
             `${contact.firstname} ${contact.lastname}`;
+
+        const names =
+            `${contact.firstname || ""} ${contact.lastname || ""}`
+                .trim()
+                .split(/\s+/)
+                .filter(Boolean);
+
+        initialsElement.textContent =
+            names
+                .slice(0, 2)
+                .map((name) => name.charAt(0).toUpperCase())
+                .join("");
 
         contactDetailsElement.textContent =
             `${contact.phone} | ${contact.email} | ${contact.city}, ${contact.state}, ${contact.country}`;
@@ -199,6 +216,49 @@ function displayCV(resume) {
 
 
     // -------------------------
+    // Work Experience
+    // -------------------------
+
+    experienceContainer.innerHTML = "";
+
+    if (
+        resume.experience &&
+        resume.experience.length > 0
+    ) {
+        resume.experience.forEach((experience) => {
+            const experienceItem =
+                document.createElement("div");
+
+            experienceItem.classList.add(
+                "experience-item"
+            );
+
+            const dates = [
+                experience.startDate || "",
+                experience.current
+                    ? "Present"
+                    : (experience.endDate || "")
+            ].filter(Boolean).join(" - ");
+
+            experienceItem.innerHTML = `
+                <h3>${escapeHTML(experience.role)}</h3>
+                <p><strong>${escapeHTML(experience.company)}</strong></p>
+                ${experience.location ? `<p>${escapeHTML(experience.location)}</p>` : ""}
+                ${dates ? `<p>${escapeHTML(dates)}</p>` : ""}
+                ${experience.description ? `<p>${escapeHTML(experience.description)}</p>` : ""}
+            `;
+
+            experienceContainer.appendChild(
+                experienceItem
+            );
+        });
+    } else {
+        experienceContainer.innerHTML =
+            "<p>No work experience provided.</p>";
+    }
+
+
+    // -------------------------
     // Projects
     // -------------------------
 
@@ -233,12 +293,12 @@ function displayCV(resume) {
                 </p>
 
                 ${
-                    project.github
+                    getSafeExternalURL(project.github)
                         ? `
                             <p>
                                 <a
                                     class="project-link"
-                                    href="${escapeHTML(project.github)}"
+                                    href="${escapeHTML(getSafeExternalURL(project.github))}"
                                     target="_blank"
                                     rel="noopener noreferrer"
                                 >
@@ -263,6 +323,65 @@ function displayCV(resume) {
 
     }
 
+
+    // -------------------------
+    // Certifications
+    // -------------------------
+
+    certificationsContainer.innerHTML = "";
+
+    if (
+        resume.certifications &&
+        resume.certifications.length > 0
+    ) {
+        resume.certifications.forEach((certification) => {
+            const certificationItem =
+                document.createElement("div");
+
+            certificationItem.classList.add(
+                "certification-item"
+            );
+
+            const dates = [
+                certification.issueDate
+                    ? `Issued ${escapeHTML(certification.issueDate)}`
+                    : "",
+                certification.expiryDate
+                    ? `Expires ${escapeHTML(certification.expiryDate)}`
+                    : ""
+            ].filter(Boolean).join(" | ");
+
+            certificationItem.innerHTML = `
+                <h3>${escapeHTML(certification.name)}</h3>
+                <p><strong>${escapeHTML(certification.issuer)}</strong></p>
+                ${dates ? `<p>${dates}</p>` : ""}
+                ${
+                    getSafeExternalURL(certification.url)
+                        ? `
+                            <p>
+                                <a
+                                    class="project-link"
+                                    href="${escapeHTML(getSafeExternalURL(certification.url))}"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    View Credential
+                                </a>
+                            </p>
+                        `
+                        : ""
+                }
+            `;
+
+            certificationsContainer.appendChild(
+                certificationItem
+            );
+        });
+    } else {
+        certificationsContainer.innerHTML =
+            "<p>No certifications provided.</p>";
+    }
+
 }
 
 
@@ -282,6 +401,19 @@ function escapeHTML(value) {
 
     return div.innerHTML;
 
+}
+
+function getSafeExternalURL(value) {
+    if (!value) return "";
+
+    try {
+        const url = new URL(value);
+        return ["http:", "https:"].includes(url.protocol)
+            ? url.toString()
+            : "";
+    } catch (error) {
+        return "";
+    }
 }
 
 

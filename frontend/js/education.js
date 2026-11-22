@@ -166,7 +166,7 @@ nextBtn.addEventListener("click", async () => {
             );
 
             window.location.href =
-                "skills.html";
+                "experience.html";
 
         } else {
 

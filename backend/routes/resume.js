@@ -239,6 +239,42 @@ router.post("/education", authenticateUser, async (req, res) => {
 });
 
 // =========================
+// Save Work Experience
+// =========================
+
+router.post("/experience", authenticateUser, async (req, res) => {
+    try {
+        const { experience } = req.body;
+
+        if (!experience || !Array.isArray(experience) || experience.length === 0) {
+            return res.status(400).json({
+                message: "Please add at least one work experience"
+            });
+        }
+
+        const resume = await Resume.findOne({ userId: req.userId });
+
+        if (!resume) {
+            return res.status(404).json({
+                message: "Resume not found. Please complete contact information first."
+            });
+        }
+
+        resume.experience = experience;
+        await resume.save();
+
+        res.status(200).json({
+            message: "Work experience saved successfully"
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Failed to save work experience"
+        });
+    }
+});
+
+// =========================
 // Save / Update Skills
 // =========================
 
@@ -351,6 +387,48 @@ router.post("/projects", authenticateUser, async (req, res) => {
 
 });
 
+// =========================
+// Save Certifications
+// =========================
+
+router.post("/certifications", authenticateUser, async (req, res) => {
+    try {
+        const { certifications } = req.body;
+
+        if (
+            !certifications ||
+            !Array.isArray(certifications) ||
+            certifications.length === 0
+        ) {
+            return res.status(400).json({
+                message: "Please add at least one certification"
+            });
+        }
+
+        const resume = await Resume.findOne({
+            userId: req.userId
+        });
+
+        if (!resume) {
+            return res.status(404).json({
+                message: "Resume not found. Please complete contact information first."
+            });
+        }
+
+        resume.certifications = certifications;
+        await resume.save();
+
+        res.status(200).json({
+            message: "Certifications saved successfully"
+        });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({
+            message: "Failed to save certifications"
+        });
+    }
+});
+
 
 // =========================
 // Save Professional Summary
@@ -391,8 +469,10 @@ router.post("/summary", authenticateUser, async (req, res) => {
         resume.isCompleted =
             Boolean(resume.contact?.firstname) &&
             resume.education?.length > 0 &&
+            resume.experience?.length > 0 &&
             resume.skills?.length > 0 &&
             resume.projects?.length > 0 &&
+            resume.certifications?.length > 0 &&
             Boolean(summary.trim());
 
         // Save updated resume

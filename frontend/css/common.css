@@ -256,6 +256,17 @@ body {
     margin: 0;
 }
 
+.intro-checklist {
+    margin-top: 16px;
+    padding-left: 24px;
+    line-height: 2;
+    font-size: 17px;
+}
+
+.intro-navigation {
+    justify-content: space-between;
+}
+
 
 /* =========================
    MOBILE

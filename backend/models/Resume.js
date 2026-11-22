@@ -60,12 +60,22 @@ const resumeSchema = new mongoose.Schema(
             default: []
         },
 
+        experience: {
+            type: Array,
+            default: []
+        },
+
         skills: {
             type: Array,
             default: []
         },
 
         projects: {
+            type: Array,
+            default: []
+        },
+
+        certifications: {
             type: Array,
             default: []
         },

@@ -3,40 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/style.css">
-    <title>INTRO</title>
+    <link rel="stylesheet" href="css/common.css">
+    <title>Build Your CV | Dream CV</title>
 </head>
 <body>
-    <div class="container">
-    <header>
-           <h1 style="text-align: center;"><span>CV</span> MAKER</h1>
+    <header class="top-header">
+        <div class="logo">
+            Dream <span>CV</span>
+        </div>
+
+        <button type="button" class="logout-btn" id="logoutBtn">
+            Logout
+        </button>
     </header>
-    <main>
-        <section>
-            <p style="font-size: 25px;">Create a <span> professional resume</span> in just a few simple steps.</p>
-            <p style="font-size: 20px;">
-                What you'll need:
-            </p>
-                <ol style="font-size: 20px;">
+
+    <main class="page-container">
+        <h1 class="page-title">Create Your CV</h1>
+        <p class="page-description">
+            Create a professional resume in just a few simple steps.
+        </p>
+
+        <section class="content-card">
+            <h2>Get Started</h2>
+            <p><strong>What you'll need:</strong></p>
+
+            <ol class="intro-checklist">
                     <li>Personal information</li>
                     <li>Education details</li>
                     <li>Skills</li>
                     <li>Projects</li>
                     <li>Professional summary</li>
-                </ol>
+            </ol>
         </section>
     </main>
-    <nav>
+
+    <nav class="page-navigation intro-navigation">
+        <a href="dashboard.html">
+            <button type="button" class="primary-btn">
+                ← Dashboard
+            </button>
+        </a>
+
         <a href="contact.html">
-            <button type="button">
+            <button type="button" class="primary-btn">
                 Start Building →
             </button>
         </a>
     </nav>
-    <footer>
-        <p> &copy; 2026 All Rights Reserved </p>
+
+    <footer class="main-footer">
+        <p>© 2026 Dream CV Maker. All Rights Reserved.</p>
     </footer>
-    </div>
-<script src="js/save.js"></script>
+
+<script src="js/intro.js"></script>
+<script src="js/sidebar.js"></script>
 </body>
 </html>

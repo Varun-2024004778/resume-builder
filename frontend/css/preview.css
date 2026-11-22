@@ -22,6 +22,7 @@ body {
     background: white;
     border-radius: 18px;
     box-shadow: 0 15px 35px rgba(31, 41, 55, 0.15);
+    font-family: Georgia, "Times New Roman", serif;
 }
 
 /* HEADER */
@@ -29,19 +30,37 @@ body {
 .cv-header {
     text-align: center;
     padding-bottom: 22px;
-    border-bottom: 3px solid #4f46e5;
 }
 
 .cv-header h1 {
-    margin: 0 0 10px;
+    margin: 12px 0 6px;
     color: #111827;
-    font-size: 36px;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 28px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
 }
 
 .cv-header p {
     margin: 0;
     color: #6b7280;
-    font-size: 15px;
+    font-size: 12px;
+}
+
+.cv-initials {
+    width: 52px;
+    height: 52px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #7b8794;
+    border-radius: 50%;
+    color: #243447;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 20px;
+    font-weight: 700;
+    background: #fff;
 }
 
 /* SECTIONS */
@@ -52,15 +71,17 @@ body {
 
 .cv-section h2 {
     margin: 0 0 12px;
-    padding-bottom: 7px;
-    color: #4f46e5;
-    border-bottom: 1px solid #c7d2fe;
-    font-size: 21px;
+    padding-bottom: 5px;
+    color: #20252b;
+    border-bottom: 1px solid #b8bec5;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 15px;
+    font-weight: 700;
 }
 
 .cv-section p {
-    color: #4b5563;
-    line-height: 1.7;
+    color: #343a40;
+    line-height: 1.55;
 }
 
 /* EDUCATION + PROJECTS */
@@ -81,21 +102,82 @@ body {
     margin: 5px 0;
 }
 
+.certification-item {
+    margin-bottom: 20px;
+}
+
+.certification-item h3 {
+    margin-bottom: 6px;
+    color: #111827;
+}
+
+.certification-item p {
+    margin: 5px 0;
+}
+
 /* SKILLS */
 
 .skills-list {
     display: flex;
     flex-wrap: wrap;
-    gap: 10px;
+    gap: 7px 40px;
+    padding-left: 18px;
 }
 
 .skill {
-    padding: 7px 13px;
-    color: #3730a3;
-    background: #eef2ff;
-    border: 1px solid #c7d2fe;
-    border-radius: 20px;
-    font-size: 14px;
+    min-width: 240px;
+    color: #343a40;
+    background: none;
+    border: 0;
+    border-radius: 0;
+    font-size: 13px;
+}
+
+.skill::before {
+    content: "•";
+    margin-right: 8px;
+}
+
+.education-item,
+.project-item,
+.certification-item {
+    margin-bottom: 14px;
+}
+
+.education-item h3,
+.project-item h3,
+.certification-item h3 {
+    margin-bottom: 4px;
+    color: #20252b;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 13px;
+}
+
+#projectsContainer,
+#certificationsContainer {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px 24px;
+}
+
+#educationContainer {
+    display: flex;
+    flex-direction: column;
+}
+
+.experience-item {
+    margin-bottom: 14px;
+}
+
+.experience-item h3 {
+    margin-bottom: 4px;
+    color: #20252b;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 13px;
+}
+
+.experience-item p {
+    margin: 3px 0;
 }
 
 /* GITHUB */
@@ -142,15 +224,87 @@ body {
 
 @media print {
 
+    @page {
+        size: A4 portrait;
+        margin: 8mm;
+    }
+
+    html,
+    .shared-sidebar-active,
+    .shared-sidebar-active body,
     body {
-        background: white;
-        padding: 0;
+        background: white !important;
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+
+    .shared-sidebar,
+    .top-header,
+    .preview-buttons,
+    .shared-sidebar-styles {
+        display: none !important;
     }
 
     .preview-container {
         width: 100%;
+        max-width: none;
+        margin: 0;
+        padding: 12px 16px;
         box-shadow: none;
         border-radius: 0;
+        font-size: 10pt;
+        line-height: 1.25;
+        font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .cv-header {
+        padding-bottom: 8px;
+    }
+
+    .cv-header h1 {
+        margin-bottom: 4px;
+        font-size: 24pt;
+        color: #111827;
+        letter-spacing: 1pt;
+    }
+
+    .cv-header p {
+        font-size: 9pt;
+    }
+
+    .cv-section {
+        margin-top: 8px;
+        break-inside: avoid;
+    }
+
+    .cv-section h2 {
+        margin-bottom: 5px;
+        padding-bottom: 3px;
+        font-size: 13pt;
+    }
+
+    .cv-section p {
+        margin: 2px 0;
+        line-height: 1.25;
+    }
+
+    .education-item,
+    .project-item,
+    .certification-item {
+        margin-bottom: 5px;
+        break-inside: avoid;
+    }
+
+    .education-item h3,
+    .project-item h3,
+    .certification-item h3 {
+        margin: 0 0 2px;
+        font-size: 11pt;
+    }
+
+    .skill {
+        padding: 3px 8px;
+        font-size: 9pt;
     }
 
     .preview-buttons {

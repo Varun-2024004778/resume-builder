@@ -1,5 +1,6 @@
 {
     "workbench.editorAssociations": {
         "prettier": "default"
-    }
+    },
+    "postman.settings.dotenv-detection-notification-visibility": false
 }
