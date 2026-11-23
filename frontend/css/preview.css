@@ -180,6 +180,99 @@ body {
     margin: 3px 0;
 }
 
+/* =========================
+   RESUME TEMPLATES
+   ========================= */
+
+.preview-container.template-classic {
+    border: 1px solid #8a8f94;
+    border-radius: 4px;
+}
+
+.preview-container.template-classic .cv-header {
+    border-bottom: 2px solid #34383d;
+}
+
+.preview-container.template-classic .cv-header h1 {
+    font-family: Georgia, "Times New Roman", serif;
+    color: #1f2933;
+}
+
+.preview-container.template-corporate {
+    border-left: 12px solid #263a53;
+    border-radius: 4px;
+}
+
+.preview-container.template-corporate .cv-header {
+    text-align: left;
+    border-bottom: 2px solid #263a53;
+}
+
+.preview-container.template-corporate .cv-initials {
+    margin: 0 0 12px;
+    border-radius: 4px;
+    border-color: #263a53;
+    color: #263a53;
+}
+
+.preview-container.template-corporate .cv-section h2 {
+    color: #263a53;
+    border-bottom-color: #263a53;
+}
+
+.preview-container.template-timeline .cv-section {
+    position: relative;
+    padding-left: 18px;
+    border-left: 2px solid #9aa3ad;
+}
+
+.preview-container.template-timeline .cv-section h2::before {
+    content: "";
+    position: absolute;
+    left: -23px;
+    width: 10px;
+    height: 10px;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    background: #4f46e5;
+}
+
+.preview-container.template-professional {
+    border-top: 8px solid #374151;
+}
+
+.preview-container.template-professional #skillsContainer,
+.preview-container.template-professional #educationContainer,
+.preview-container.template-professional #projectsContainer,
+.preview-container.template-professional #certificationsContainer {
+    padding: 0 10px;
+}
+
+.preview-container.template-professional .cv-section h2 {
+    color: #374151;
+    border-bottom: 2px solid #374151;
+}
+
+.preview-container.template-minimal {
+    border: 0;
+    box-shadow: 0 8px 24px rgba(31, 41, 55, 0.08);
+}
+
+.preview-container.template-minimal .cv-header {
+    text-align: left;
+}
+
+.preview-container.template-minimal .cv-initials {
+    display: none;
+}
+
+.preview-container.template-minimal .cv-section h2 {
+    border-bottom: 0;
+    color: #4b5563;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+}
+
 /* GITHUB */
 
 .project-link {

@@ -49,6 +49,7 @@ if (!isProduction()) {
     // Local development origins only
     allowedOrigins.add("http://localhost:5500");
     allowedOrigins.add("http://127.0.0.1:5500");
+    allowedOrigins.add("https://760kvg4q-5501.inc1.devtunnels.ms");
 }
 
 app.use(cors({
@@ -56,7 +57,8 @@ app.use(cors({
         // No Origin header = non-browser client (curl, server-to-server).
         // CORS is not an auth boundary; the API authenticates every request.
         // Disallowed browser origins simply get no CORS headers (no 500/stack).
-        callback(null, !origin || allowedOrigins.has(origin));
+        const isDevTunnel = /^https:\/\/[^/]+\.devtunnels\.ms$/i.test(origin || "");
+        callback(null, !origin || allowedOrigins.has(origin) || isDevTunnel);
     },
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"]
@@ -139,7 +141,7 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 
 if (require.main === module) {
-    app.listen(PORT, () => {
+    app.listen(PORT, "0.0.0.0", () => {
         console.log(`🚀 Server running on http://localhost:${PORT}`);
     });
 }

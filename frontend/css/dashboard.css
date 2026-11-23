@@ -372,6 +372,350 @@ body {
 
 }
 
+/* =========================
+   TEMPLATE SELECTOR
+   ========================= */
+
+.template-section {
+    max-width: 1200px;
+    margin: 0 auto 45px;
+}
+
+.template-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 18px;
+}
+
+.template-heading h2 {
+    color: #111827;
+    font-size: 24px;
+}
+
+.template-heading > p {
+    color: #6b7280;
+}
+
+.template-eyebrow {
+    color: #4f46e5;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.template-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+}
+
+.template-card {
+    min-width: 0;
+    border: 2px solid transparent;
+    border-radius: 16px;
+    padding: 12px;
+    background: #fff;
+    color: #374151;
+    text-align: left;
+    box-shadow: 0 8px 22px rgba(31, 41, 55, 0.10);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.template-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 28px rgba(31, 41, 55, 0.15);
+}
+
+.template-card.selected {
+    border-color: #4f46e5;
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+}
+
+.template-preview {
+    position: relative;
+    height: 145px;
+    display: block;
+    overflow: hidden;
+    margin-bottom: 10px;
+    border: 1px solid #dfe3e8;
+    border-radius: 9px;
+    background: #fff;
+}
+
+.preview-name,
+.preview-line,
+.preview-section,
+.preview-sidebar,
+.preview-content,
+.preview-columns {
+    display: block;
+}
+
+.preview-name {
+    width: 54%;
+    height: 8px;
+    margin: 20px auto 8px;
+    border-radius: 2px;
+    background: #25364a;
+}
+
+.preview-line {
+    width: 70%;
+    height: 4px;
+    margin: 7px auto;
+    border-radius: 2px;
+    background: #cbd2da;
+}
+
+.preview-line-long {
+    width: 82%;
+}
+
+.preview-line-short {
+    width: 48%;
+}
+
+.preview-section {
+    width: 82%;
+    height: 6px;
+    margin: 18px auto 8px;
+    border-top: 2px solid #738091;
+    border-bottom: 1px solid #738091;
+}
+
+.template-preview-classic .preview-name {
+    background: #4a4a46;
+}
+
+.template-preview-corporate {
+    display: flex;
+}
+
+.template-preview-corporate .preview-sidebar {
+    width: 28%;
+    height: 100%;
+    background: #263a53;
+}
+
+.template-preview-corporate .preview-content {
+    width: 72%;
+}
+
+.template-preview-corporate .preview-name {
+    margin-left: 12%;
+}
+
+.template-preview-corporate .preview-line,
+.template-preview-corporate .preview-section {
+    margin-left: 12%;
+}
+
+.template-preview-timeline .preview-line-dot {
+    position: relative;
+    width: 58%;
+    margin-left: 27%;
+}
+
+.template-preview-timeline .preview-line-dot::before {
+    content: "";
+    position: absolute;
+    left: -14px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #4f46e5;
+}
+
+.template-preview-professional .preview-columns {
+    width: 82%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 12px auto;
+}
+
+.template-preview-professional .preview-columns span {
+    height: 42px;
+    border: 1px solid #d9dee5;
+}
+
+.template-preview-minimal .preview-section {
+    border: 0;
+    border-top: 1px solid #b8bec5;
+}
+
+.template-card-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+.template-card-body strong {
+    color: #111827;
+    font-size: 16px;
+}
+
+.template-card-body span {
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.mini-resume {
+    display: block;
+    height: 100%;
+    padding: 10px 12px;
+    color: #20252b;
+    font-family: Georgia, "Times New Roman", serif;
+}
+
+.mini-logo {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 6px;
+    border: 1px solid #7b8794;
+    border-radius: 50%;
+    color: #243447;
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.mini-name,
+.mini-contact,
+.mini-heading,
+.mini-text,
+.mini-skills,
+.timeline-item {
+    display: block;
+}
+
+.mini-name {
+    overflow: hidden;
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 0.3px;
+    white-space: nowrap;
+}
+
+.mini-contact {
+    margin-top: 3px;
+    text-align: center;
+    color: #6b7280;
+    font-family: Poppins, sans-serif;
+    font-size: 5.5px;
+}
+
+.mini-heading {
+    margin-top: 7px;
+    padding-bottom: 2px;
+    border-bottom: 1px solid #aeb5bc;
+    font-size: 7px;
+    font-weight: 700;
+}
+
+.mini-text,
+.mini-skills,
+.timeline-item {
+    margin-top: 3px;
+    color: #343a40;
+    font-family: Poppins, sans-serif;
+    font-size: 5.5px;
+    line-height: 1.35;
+}
+
+.mini-skills {
+    columns: 2;
+}
+
+.template-preview-corporate .mini-sidebar {
+    width: 31%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    flex-shrink: 0;
+    padding: 10px 7px;
+    background: #263a53;
+    color: #fff;
+    font-family: Poppins, sans-serif;
+    font-size: 5.5px;
+}
+
+.template-preview-corporate .mini-sidebar strong {
+    text-align: center;
+    font-size: 7px;
+}
+
+.template-preview-corporate .mini-sidebar > span:not(.mini-logo) {
+    text-align: center;
+}
+
+.template-preview-corporate .mini-sidebar .mini-logo {
+    border-color: #fff;
+    color: #fff;
+}
+
+.template-preview-corporate .mini-sidebar-label {
+    margin-top: 7px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+}
+
+.template-preview-corporate .mini-resume {
+    width: 69%;
+}
+
+.template-preview-timeline .mini-resume {
+    margin-left: 8px;
+    border-left: 1px solid #9aa3ad;
+}
+
+.timeline-item {
+    position: relative;
+    padding-left: 9px;
+}
+
+.timeline-item::before {
+    content: "";
+    position: absolute;
+    left: -3px;
+    top: 2px;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #4f46e5;
+}
+
+.mini-columns {
+    display: grid;
+    grid-template-columns: 1.25fr 0.75fr;
+    gap: 8px;
+}
+
+.mini-columns > span {
+    display: block;
+}
+
+.template-preview-minimal .mini-name {
+    text-align: left;
+}
+
+.template-preview-minimal .mini-contact {
+    text-align: left;
+}
+
+.template-preview-minimal .mini-heading {
+    border-bottom: 0;
+    color: #4b5563;
+    letter-spacing: 0.08em;
+}
+
 
 /* =========================
    FOOTER
@@ -397,6 +741,15 @@ footer {
    ========================= */
 
 @media (max-width: 800px) {
+
+    .template-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .template-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 
     .sidebar {
 
@@ -477,4 +830,10 @@ footer {
 
     }
 
+}
+
+@media (max-width: 600px) {
+    .template-grid {
+        grid-template-columns: 1fr;
+    }
 }

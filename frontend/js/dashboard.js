@@ -37,11 +37,44 @@ logoutBtn.addEventListener("click", () => {
 
 const createCV = document.getElementById("createCV");
 
-createCV.addEventListener("click", () => {
+if (createCV) {
+    createCV.addEventListener("click", () => {
 
-    window.location.href = "contact.html";
+        window.location.href = "contact.html";
 
+    });
+}
+
+// =========================
+// Resume Templates
+// =========================
+
+const templateCards =
+    document.querySelectorAll(".template-card");
+
+let selectedTemplate =
+    localStorage.getItem("resumeTemplate") || "executive";
+
+function renderSelectedTemplate() {
+    templateCards.forEach((card) => {
+        const isSelected =
+            card.dataset.template === selectedTemplate;
+
+        card.classList.toggle("selected", isSelected);
+        card.setAttribute("aria-pressed", String(isSelected));
+    });
+}
+
+templateCards.forEach((card) => {
+    card.addEventListener("click", () => {
+        selectedTemplate = card.dataset.template;
+        localStorage.setItem("resumeTemplate", selectedTemplate);
+        renderSelectedTemplate();
+        window.location.href = "intro.html";
+    });
 });
+
+renderSelectedTemplate();
 
 // =========================
 // My Saved CVs

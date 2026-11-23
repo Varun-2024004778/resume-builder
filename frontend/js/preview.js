@@ -2,6 +2,15 @@
 // Preview CV
 // =========================
 
+const resumeTemplate =
+    localStorage.getItem("resumeTemplate") || "executive";
+const previewContainer =
+    document.querySelector(".preview-container");
+
+if (previewContainer) {
+    previewContainer.classList.add(`template-${resumeTemplate}`);
+}
+
 const fullNameElement = document.getElementById("fullName");
 const initialsElement = document.getElementById("initials");
 const contactDetailsElement = document.getElementById("contactDetails");

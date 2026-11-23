@@ -15,7 +15,16 @@ const PRODUCTION_API_BASE = "";
     const host = window.location.hostname;
     const isLocal = host === "" || host === "localhost" || host === "127.0.0.1";
 
-    window.API_BASE = (isLocal ? "http://127.0.0.1:5000" : PRODUCTION_API_BASE)
+    let apiBase = isLocal ? "http://127.0.0.1:5000" : PRODUCTION_API_BASE;
+
+    // VS Code Dev Tunnels expose one stable tunnel hostname with a
+    // port-specific subdomain. Derive the API tunnel from the frontend URL.
+    if (/\.devtunnels\.ms$/i.test(host)) {
+        apiBase = window.location.protocol + "//" +
+            host.replace(/-\d+(\..*)$/i, "-5000$1");
+    }
+
+    window.API_BASE = apiBase
         .replace(/\/+$/, "");
 
     // Never send passwords or tokens over plain HTTP from a secure page.
