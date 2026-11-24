@@ -2,8 +2,7 @@ const express = require("express");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
-const mongoose = require("mongoose");
-const User = require("../models/User");
+const users = require("../repositories/users");
 const { sendPasswordResetEmail } = require("../utils/mailer");
 
 const router = express.Router();
@@ -67,7 +66,7 @@ router.post("/register", async (req, res) => {
             return res.status(400).json({ message: pwError });
         }
 
-        const existingUser = await User.findOne({ email: normalizedEmail });
+        const existingUser = await users.findByEmail(normalizedEmail);
         if (existingUser) {
             return res.status(400).json({ message: "Email already registered" });
         }
@@ -75,14 +74,9 @@ router.post("/register", async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
         try {
-            await new User({
-                name: cleanName,
-                email: normalizedEmail,
-                password: hashedPassword
-            }).save();
+            await users.create({ name: cleanName, email: normalizedEmail, password: hashedPassword });
         } catch (error) {
-            // Two simultaneous registrations for the same email
-            if (error.code === 11000) {
+            if (error.code === "23505") {
                 return res.status(400).json({ message: "Email already registered" });
             }
             throw error;
@@ -111,18 +105,18 @@ router.post("/login", async (req, res) => {
             return res.status(400).json({ message: "Please enter email and password" });
         }
 
-        const user = await User.findOne({ email: email.trim().toLowerCase() });
+        const user = await users.findByEmail(email.trim().toLowerCase());
 
         // Always run a bcrypt comparison (against a dummy hash if there is no
         // such user) so response time does not reveal whether the email exists.
-        const isMatch = await bcrypt.compare(password, user ? user.password : DUMMY_HASH);
+        const isMatch = await bcrypt.compare(password, user ? user.password_hash : DUMMY_HASH);
 
         if (!user || !isMatch) {
             return res.status(400).json({ message: "Invalid Email or Password" });
         }
 
         const token = jwt.sign(
-            { id: String(user._id), tv: user.tokenVersion ?? 0 },
+            { id: String(user.id), tv: user.token_version ?? 0 },
             process.env.JWT_SECRET,
             { expiresIn: "1d", algorithm: "HS256" }
         );
@@ -149,11 +143,12 @@ router.post("/forgot-password", async (req, res) => {
             return res.status(400).json({ message: "Please enter your email address" });
         }
 
-        const user = await User.findOne({ email: email.trim().toLowerCase() });
+        const user = await users.findByEmail(email.trim().toLowerCase());
 
         if (user) {
-            const lastIssuedAt = user.resetPasswordExpires
-                ? user.resetPasswordExpires.getTime() - RESET_TOKEN_TTL_MS
+            const resetExpires = user.reset_password_expires ? new Date(user.reset_password_expires) : null;
+            const lastIssuedAt = resetExpires
+                ? resetExpires.getTime() - RESET_TOKEN_TTL_MS
                 : 0;
 
             // Per-account cooldown: stops inbox flooding and token churn
@@ -161,9 +156,11 @@ router.post("/forgot-password", async (req, res) => {
                 const resetToken = crypto.randomBytes(32).toString("hex");
                 const hashedToken = sha256(resetToken);
 
-                user.resetPasswordToken = hashedToken;
-                user.resetPasswordExpires = new Date(Date.now() + RESET_TOKEN_TTL_MS);
-                await user.save();
+                await users.setResetToken(
+                    user.id,
+                    hashedToken,
+                    new Date(Date.now() + RESET_TOKEN_TTL_MS)
+                );
 
                 const frontendUrl = (process.env.FRONTEND_URL || "http://127.0.0.1:5500")
                     .replace(/\/$/, "");
@@ -174,10 +171,7 @@ router.post("/forgot-password", async (req, res) => {
                 sendPasswordResetEmail(user.email, resetUrl).catch(async (error) => {
                     console.error("Password reset email failed:", error.message);
                     // Release the cooldown so the user can simply try again
-                    await User.updateOne(
-                        { _id: user._id, resetPasswordToken: hashedToken },
-                        { $set: { resetPasswordToken: null, resetPasswordExpires: null } }
-                    ).catch(() => {});
+                    await users.clearResetToken(user.id, hashedToken).catch(() => {});
                 });
             }
         }
@@ -209,29 +203,13 @@ router.post("/reset-password", async (req, res) => {
         }
 
         const hashedToken = sha256(token);
-        // mongoose.trusted: our own operator, exempt from sanitizeFilter
-        const tokenFilter = () => ({
-            resetPasswordToken: hashedToken,
-            resetPasswordExpires: mongoose.trusted({ $gt: new Date() })
-        });
-
-        const user = await User.findOne(tokenFilter());
+        const user = await users.findValidResetToken(hashedToken);
         if (!user) {
             return res.status(400).json({ message: "Reset link is invalid or has expired" });
         }
 
         const newHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
-
-        // Atomic: the token can only be consumed once, even with concurrent
-        // requests. $inc tokenVersion revokes every session issued before now.
-        const updated = await User.findOneAndUpdate(
-            tokenFilter(),
-            {
-                $set: { password: newHash, resetPasswordToken: null, resetPasswordExpires: null },
-                $inc: { tokenVersion: 1 }
-            },
-            { returnDocument: "after" }
-        );
+        const updated = await users.consumeResetToken(user.id, hashedToken, newHash);
 
         if (!updated) {
             return res.status(400).json({ message: "Reset link is invalid or has expired" });

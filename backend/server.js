@@ -16,7 +16,7 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth");
 const resumeRoutes = require("./routes/resume");
 
-// Connect MongoDB
+// Connect Supabase PostgreSQL
 connectDB();
 
 const app = express();
@@ -49,6 +49,8 @@ if (!isProduction()) {
     // Local development origins only
     allowedOrigins.add("http://localhost:5500");
     allowedOrigins.add("http://127.0.0.1:5500");
+    allowedOrigins.add("http://localhost:5501");
+    allowedOrigins.add("http://127.0.0.1:5501");
     allowedOrigins.add("https://760kvg4q-5501.inc1.devtunnels.ms");
 }
 
@@ -57,8 +59,9 @@ app.use(cors({
         // No Origin header = non-browser client (curl, server-to-server).
         // CORS is not an auth boundary; the API authenticates every request.
         // Disallowed browser origins simply get no CORS headers (no 500/stack).
+        const isLocalOrigin = /^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/i.test(origin || "");
         const isDevTunnel = /^https:\/\/[^/]+\.devtunnels\.ms$/i.test(origin || "");
-        callback(null, !origin || allowedOrigins.has(origin) || isDevTunnel);
+        callback(null, !origin || allowedOrigins.has(origin) || (isLocalOrigin && !isProduction()) || isDevTunnel);
     },
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"]

@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
-const Resume = require("../models/Resume");
+const resumes = require("../repositories/resumes");
 const authenticateUser = require("../middleware/auth");
 const v = require("../utils/validators");
 
@@ -53,32 +53,12 @@ router.post("/contact", authenticateUser, async (req, res) => {
             return res.status(400).json({ message: "Please enter a valid email address" });
         }
 
-        const save = async () => {
-            let resume = await Resume.findOne({ userId: req.userId });
-            if (!resume) {
-                resume = new Resume({ userId: req.userId });
-            }
-            resume.contact = contact;
-            await resume.save();
-            return resume;
-        };
-
-        let resume;
-        try {
-            resume = await save();
-        } catch (error) {
-            // Two first-time saves raced; the unique index on userId stopped
-            // the duplicate. Retry once against the resume that won.
-            if (error.code === 11000) {
-                resume = await save();
-            } else {
-                throw error;
-            }
-        }
+        const resume = await resumes.createForUser(req.userId);
+        await resumes.updateSection(req.userId, "contact", contact);
 
         res.status(200).json({
             message: "Contact information saved successfully",
-            resumeId: resume._id
+            resumeId: resume.id
         });
 
     } catch (error) {
@@ -109,13 +89,11 @@ router.post("/education", authenticateUser, async (req, res) => {
             enrolled: body.enrolled === true
         };
 
-        const resume = await Resume.findOne({ userId: req.userId });
+        const resume = await resumes.findByUserId(req.userId);
         if (!resume) {
             return res.status(404).json({ message: notFoundMessage });
         }
-
-        resume.education = [education];
-        await resume.save();
+        await resumes.updateSection(req.userId, "education", [education]);
 
         res.status(200).json({ message: "Education information saved successfully" });
 
@@ -150,13 +128,11 @@ router.post("/experience", authenticateUser, async (req, res) => {
             };
         });
 
-        const resume = await Resume.findOne({ userId: req.userId });
+        const resume = await resumes.findByUserId(req.userId);
         if (!resume) {
             return res.status(404).json({ message: notFoundMessage });
         }
-
-        resume.experience = experience;
-        await resume.save();
+        await resumes.updateSection(req.userId, "experience", experience);
 
         res.status(200).json({ message: "Work experience saved successfully" });
 
@@ -193,13 +169,11 @@ router.post("/skills", authenticateUser, async (req, res) => {
             return res.status(400).json({ message: "Please select at least one skill" });
         }
 
-        const resume = await Resume.findOne({ userId: req.userId });
+        const resume = await resumes.findByUserId(req.userId);
         if (!resume) {
             return res.status(404).json({ message: notFoundMessage });
         }
-
-        resume.skills = skills;
-        await resume.save();
+        await resumes.updateSection(req.userId, "skills", skills);
 
         res.status(200).json({ message: "Skills saved successfully" });
 
@@ -231,13 +205,11 @@ router.post("/projects", authenticateUser, async (req, res) => {
             };
         });
 
-        const resume = await Resume.findOne({ userId: req.userId });
+        const resume = await resumes.findByUserId(req.userId);
         if (!resume) {
             return res.status(404).json({ message: notFoundMessage });
         }
-
-        resume.projects = projects;
-        await resume.save();
+        await resumes.updateSection(req.userId, "projects", projects);
 
         res.status(200).json({ message: "Projects saved successfully" });
 
@@ -270,13 +242,11 @@ router.post("/certifications", authenticateUser, async (req, res) => {
             };
         });
 
-        const resume = await Resume.findOne({ userId: req.userId });
+        const resume = await resumes.findByUserId(req.userId);
         if (!resume) {
             return res.status(404).json({ message: notFoundMessage });
         }
-
-        resume.certifications = certifications;
-        await resume.save();
+        await resumes.updateSection(req.userId, "certifications", certifications);
 
         res.status(200).json({ message: "Certifications saved successfully" });
 
@@ -300,17 +270,16 @@ router.post("/summary", authenticateUser, async (req, res) => {
 
         const summary = v.text(rawSummary, "Summary", { max: 5000, required: true });
 
-        const resume = await Resume.findOne({ userId: req.userId });
+        const resume = await resumes.findByUserId(req.userId);
         if (!resume) {
             return res.status(404).json({
                 message: "Resume not found. Please complete your CV information first."
             });
         }
 
-        resume.summary = summary;
+        await resumes.updateSection(req.userId, "summary", summary);
 
-        // Mark CV as completed if all required sections are filled
-        resume.isCompleted =
+        const isCompleted =
             Boolean(resume.contact?.firstname) &&
             resume.education?.length > 0 &&
             resume.experience?.length > 0 &&
@@ -318,8 +287,7 @@ router.post("/summary", authenticateUser, async (req, res) => {
             resume.projects?.length > 0 &&
             resume.certifications?.length > 0 &&
             Boolean(summary);
-
-        await resume.save();
+        await resumes.updateSection(req.userId, "is_completed", isCompleted);
 
         res.status(200).json({ message: "Summary saved successfully" });
 
@@ -335,13 +303,13 @@ router.post("/summary", authenticateUser, async (req, res) => {
 
 router.get("/", authenticateUser, async (req, res) => {
     try {
-        const resume = await Resume.findOne({ userId: req.userId });
+        const resume = await resumes.findByUserId(req.userId);
 
         if (!resume) {
             return res.status(404).json({ message: "Resume not found" });
         }
 
-        res.status(200).json({ resume });
+        res.status(200).json({ resume: resumes.mapResume(resume) });
 
     } catch (error) {
         fail(res, error, "Failed to load CV");

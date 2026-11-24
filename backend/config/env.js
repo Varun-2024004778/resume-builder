@@ -18,8 +18,8 @@ function validateEnv() {
         errors.push("JWT_SECRET still contains the placeholder value from .env.example.");
     }
 
-    if (!process.env.MONGO_URI) {
-        errors.push("MONGO_URI is not configured.");
+    if (!process.env.DATABASE_URL) {
+        errors.push("DATABASE_URL is not configured.");
     }
 
     if (isProduction()) {

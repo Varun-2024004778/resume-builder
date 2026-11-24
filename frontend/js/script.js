@@ -46,11 +46,8 @@ if (registerForm) {
             }
 
         } catch (error) {
-
-            alert("Server is not running.");
-
+            alert("Cannot reach the backend server. Check that it is running and that the API URL is accessible.");
             console.error(error);
-
         }
 
     });
@@ -105,11 +102,8 @@ if (loginForm) {
             }
 
         } catch (error) {
-
-            alert("Server is not running.");
-
+            alert("Cannot reach the backend server. Check that it is running and that the API URL is accessible.");
             console.error(error);
-
         }
 
     });

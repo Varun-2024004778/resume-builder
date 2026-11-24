@@ -1,10 +1,9 @@
 const jwt = require("jsonwebtoken");
-const mongoose = require("mongoose");
-const User = require("../models/User");
+const users = require("../repositories/users");
 
 /**
  * Verifies the Bearer token AND that the account still exists and the token
- * has not been revoked (password reset bumps user.tokenVersion).
+ * has not been revoked (password reset bumps user.token_version).
  */
 module.exports = async function authenticateUser(req, res, next) {
     const authHeader = req.headers.authorization;
@@ -22,16 +21,17 @@ module.exports = async function authenticateUser(req, res, next) {
         return res.status(401).json({ message: "Invalid or expired token" });
     }
 
-    if (typeof decoded.id !== "string" || !mongoose.isValidObjectId(decoded.id)) {
+    if (typeof decoded.id !== "string" ||
+        !/^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(decoded.id)) {
         return res.status(401).json({ message: "Invalid or expired token" });
     }
 
-    const user = await User.findById(decoded.id).select("tokenVersion");
+    const user = await users.findById(decoded.id);
 
-    if (!user || (decoded.tv ?? 0) !== (user.tokenVersion ?? 0)) {
+    if (!user || (decoded.tv ?? 0) !== (user.token_version ?? 0)) {
         return res.status(401).json({ message: "Invalid or expired token" });
     }
 
-    req.userId = user._id;
+    req.userId = user.id;
     next();
 };

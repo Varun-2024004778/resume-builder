@@ -1,28 +1,25 @@
-const mongoose = require("mongoose");
+const postgresModule = require("postgres");
+const postgres = postgresModule.default || postgresModule;
 
-// Defense in depth against NoSQL operator injection: any filter value that
-// looks like { $ne: ... } is wrapped in $eq unless explicitly marked
-// mongoose.trusted(...) by our own code.
-mongoose.set("sanitizeFilter", true);
+const connectionString = process.env.DATABASE_URL;
+const sql = connectionString
+    ? postgres(connectionString, { ssl: "require", prepare: false })
+    : null;
 
 const connectDB = async () => {
     try {
-        if (!process.env.MONGO_URI) {
-            throw new Error("MONGO_URI is not configured");
+        if (!sql) {
+            throw new Error("DATABASE_URL is not configured");
         }
 
-        await mongoose.connect(process.env.MONGO_URI);
-
-        console.log("✅ MongoDB Connected Successfully");
-
+        await sql`select 1`;
+        console.log("✅ Supabase PostgreSQL Connected Successfully");
     } catch (error) {
-
-        console.error("❌ MongoDB Connection Failed");
+        console.error("❌ Supabase PostgreSQL Connection Failed");
         console.error(error.message);
-
         process.exit(1);
-
     }
 };
 
 module.exports = connectDB;
+module.exports.sql = sql;
