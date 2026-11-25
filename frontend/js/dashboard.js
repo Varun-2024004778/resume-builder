@@ -20,12 +20,7 @@ logoutBtn.addEventListener("click", () => {
     const confirmLogout = confirm("Are you sure you want to logout?");
 
     if (confirmLogout) {
-
-        localStorage.removeItem("token");
-
-        alert("Logged out successfully.");
-
-        window.location.href = "login.html";
+        window.logoutDreamCV(false);
 
     }
 

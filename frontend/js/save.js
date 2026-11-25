@@ -39,9 +39,15 @@ function getToken() {
     return token;
 }
 
+function showSaveMessage(message) {
+    if (!window.isSessionAutoLogout) {
+        alert(message);
+    }
+}
+
 async function saveSection(path, body) {
     const token = getToken();
-    if (!token) return;
+    if (!token) return false;
 
     saveButton.disabled = true;
     saveButton.textContent = "Saving...";
@@ -60,10 +66,16 @@ async function saveSection(path, body) {
         );
 
         const data = await response.json();
-        alert(data.message || "Saved successfully.");
+        if (!response.ok) {
+            showSaveMessage(data.message || "Unable to save your CV.");
+            return false;
+        }
+        showSaveMessage(data.message || "Saved successfully.");
+        return true;
     } catch (error) {
         console.error(error);
-        alert("Unable to connect to the server.");
+        showSaveMessage("Unable to connect to the server.");
+        return false;
     } finally {
         saveButton.disabled = false;
         saveButton.textContent = "Save CV";
@@ -84,11 +96,11 @@ function saveContact() {
     };
 
     if (Object.values(values).some((value) => !value)) {
-        alert("Please fill all contact fields.");
-        return;
+        showSaveMessage("Please fill all contact fields.");
+        return false;
     }
 
-    saveSection("/contact", values);
+    return saveSection("/contact", values);
 }
 
 function saveEducation() {
@@ -101,11 +113,11 @@ function saveEducation() {
     };
 
     if (!values.institution || !values.location || !values.degree) {
-        alert("Please fill all required education fields.");
-        return;
+        showSaveMessage("Please fill all required education fields.");
+        return false;
     }
 
-    saveSection("/education", values);
+    return saveSection("/education", values);
 }
 
 function saveExperience() {
@@ -135,11 +147,11 @@ function saveExperience() {
     });
 
     if (experience.length === 0) {
-        alert("Please enter at least one work experience.");
-        return;
+        showSaveMessage("Please enter at least one work experience.");
+        return false;
     }
 
-    saveSection("/experience", { experience });
+    return saveSection("/experience", { experience });
 }
 
 function saveSkills() {
@@ -158,11 +170,11 @@ function saveSkills() {
     skills.push(...otherSkills);
 
     if (skills.length === 0) {
-        alert("Please select at least one skill.");
-        return;
+        showSaveMessage("Please select at least one skill.");
+        return false;
     }
 
-    saveSection("/skills", { skills });
+    return saveSection("/skills", { skills });
 }
 
 function saveProjects() {
@@ -181,11 +193,11 @@ function saveProjects() {
     });
 
     if (projects.length === 0) {
-        alert("Please enter at least one project.");
-        return;
+        showSaveMessage("Please enter at least one project.");
+        return false;
     }
 
-    saveSection("/projects", { projects });
+    return saveSection("/projects", { projects });
 }
 
 function saveCertifications() {
@@ -210,11 +222,11 @@ function saveCertifications() {
     });
 
     if (certifications.length === 0) {
-        alert("Please enter at least one certification.");
-        return;
+        showSaveMessage("Please enter at least one certification.");
+        return false;
     }
 
-    saveSection("/certifications", { certifications });
+    return saveSection("/certifications", { certifications });
 }
 
 function saveSummary() {
@@ -222,11 +234,11 @@ function saveSummary() {
         document.getElementById("summary")?.value.trim();
 
     if (!summary) {
-        alert("Please enter your professional summary.");
-        return;
+        showSaveMessage("Please enter your professional summary.");
+        return false;
     }
 
-    saveSection("/summary", { summary });
+    return saveSection("/summary", { summary });
 }
 
 async function confirmSavedCV() {
@@ -244,24 +256,30 @@ async function confirmSavedCV() {
         );
 
         const data = await response.json();
-        alert(response.ok
+        showSaveMessage(response.ok
             ? "Your CV is saved."
             : data.message || "Unable to confirm saved CV.");
+        return response.ok;
     } catch (error) {
         console.error(error);
-        alert("Unable to connect to the server.");
+        showSaveMessage("Unable to connect to the server.");
+        return false;
     }
 }
 
-saveButton.addEventListener("click", () => {
+window.saveCurrentCV = async () => {
     const page = window.location.pathname.split("/").pop();
 
-    if (page === "contact.html") saveContact();
-    else if (page === "education.html") saveEducation();
-    else if (page === "experience.html") saveExperience();
-    else if (page === "skills.html") saveSkills();
-    else if (page === "projects.html") saveProjects();
-    else if (page === "certifications.html") saveCertifications();
-    else if (page === "summary.html") saveSummary();
-    else confirmSavedCV();
+    if (page === "contact.html") return saveContact();
+    if (page === "education.html") return saveEducation();
+    if (page === "experience.html") return saveExperience();
+    if (page === "skills.html") return saveSkills();
+    if (page === "projects.html") return saveProjects();
+    if (page === "certifications.html") return saveCertifications();
+    if (page === "summary.html") return saveSummary();
+    return true;
+};
+
+saveButton.addEventListener("click", async () => {
+    await window.saveCurrentCV();
 });

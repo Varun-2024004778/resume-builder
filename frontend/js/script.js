@@ -95,6 +95,7 @@ if (loginForm) {
 
                 // Save token
                 localStorage.setItem("token", data.token);
+                localStorage.setItem("sessionStartedAt", String(Date.now()));
 
                 // Redirect to dashboard
                 window.location.href = "dashboard.html";

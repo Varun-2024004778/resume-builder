@@ -12,6 +12,67 @@ const sidebarPages = [
     { label: "Saved CV", page: "saved-cv.html", icon: "▣" }
 ];
 
+const SESSION_DURATION_MS = 12 * 60 * 60 * 1000;
+const SESSION_STARTED_KEY = "sessionStartedAt";
+let sessionStartedAt = Number(localStorage.getItem(SESSION_STARTED_KEY));
+
+if (!Number.isFinite(sessionStartedAt) || sessionStartedAt <= 0 || sessionStartedAt > Date.now()) {
+    sessionStartedAt = Date.now();
+    localStorage.setItem(SESSION_STARTED_KEY, String(sessionStartedAt));
+}
+
+window.logoutDreamCV = async (sessionExpired = false) => {
+    if (window.logoutInProgress) return;
+    window.logoutInProgress = true;
+    window.isSessionAutoLogout = sessionExpired;
+
+    let saved = true;
+    try {
+        if (typeof window.saveCurrentCV === "function") {
+            saved = await window.saveCurrentCV();
+        }
+    } catch (error) {
+        console.error("Could not save the current CV section before logout:", error);
+        saved = false;
+    }
+
+    const token = localStorage.getItem("token");
+    if (token) {
+        try {
+            const response = await fetch(`${API_BASE}/api/logout`, {
+                method: "POST",
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            if (!response.ok) {
+                console.error("Could not revoke session on the server:", await response.text());
+            }
+        } catch (error) {
+            console.error("Could not revoke session on the server:", error);
+        }
+    }
+
+    localStorage.removeItem("token");
+    localStorage.removeItem(SESSION_STARTED_KEY);
+    if (sessionExpired && !saved) {
+        alert("Your 12-hour session expired. The current section could not be saved; please sign in and save it again.");
+    } else if (sessionExpired) {
+        alert("Your 12-hour session has expired. Your current CV section was saved.");
+    }
+    window.location.href = "login.html";
+};
+
+const sessionExpiresAt = sessionStartedAt + SESSION_DURATION_MS;
+window.setTimeout(
+    () => window.logoutDreamCV(true),
+    Math.max(0, sessionExpiresAt - Date.now())
+);
+
+window.addEventListener("storage", (event) => {
+    if ((event.key === "token" || event.key === SESSION_STARTED_KEY) && !localStorage.getItem("token")) {
+        window.location.href = "login.html";
+    }
+});
+
 if (!document.querySelector(".sidebar")) {
     const token = localStorage.getItem("token");
     if (!token) {
@@ -53,8 +114,7 @@ if (!document.querySelector(".sidebar")) {
 
     logoutButton.addEventListener("click", () => {
         if (confirm("Are you sure you want to logout?")) {
-            localStorage.removeItem("token");
-            window.location.href = "login.html";
+            window.logoutDreamCV(false);
         }
     });
 

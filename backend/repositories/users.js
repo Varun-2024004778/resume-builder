@@ -75,6 +75,15 @@ async function consumeResetToken(id, hashedToken, passwordHash) {
     return rows[0] || null;
 }
 
+async function revokeSessions(id) {
+    await requireSql()`
+        update public.users
+        set token_version = token_version + 1,
+            updated_at = now()
+        where id = ${id}
+    `;
+}
+
 module.exports = {
     findByEmail,
     findById,
@@ -82,5 +91,6 @@ module.exports = {
     setResetToken,
     clearResetToken,
     findValidResetToken,
-    consumeResetToken
+    consumeResetToken,
+    revokeSessions
 };

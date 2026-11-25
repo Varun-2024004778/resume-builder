@@ -85,6 +85,13 @@ test("Supabase: register, login, and resume ownership", async () => {
     assert.equal(resume.json.resume.contact.firstname, "Ada");
     assert.deepEqual(resume.json.resume.skills, ["PostgreSQL", "SQL"]);
     assert.equal(resume.json.resume.userId, jwtId(login.json.token));
+
+    assert.equal((await call("POST", "/api/logout", {
+        token: login.json.token
+    })).status, 200);
+    assert.equal((await call("GET", "/api/resume", {
+        token: login.json.token
+    })).status, 401);
 });
 
 test("Supabase: tampered and anonymous resume requests are rejected", async () => {

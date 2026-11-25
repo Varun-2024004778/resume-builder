@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const users = require("../repositories/users");
 const { sendPasswordResetEmail } = require("../utils/mailer");
+const authenticateUser = require("../middleware/auth");
 
 const router = express.Router();
 
@@ -216,6 +217,16 @@ router.post("/reset-password", async (req, res) => {
         }
 
         return res.status(200).json({ message: "Password reset successfully" });
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ message: "Server Error" });
+    }
+});
+
+router.post("/logout", authenticateUser, async (req, res) => {
+    try {
+        await users.revokeSessions(req.userId);
+        return res.status(200).json({ message: "Logged out successfully" });
     } catch (error) {
         console.error(error);
         return res.status(500).json({ message: "Server Error" });
